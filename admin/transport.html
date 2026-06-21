@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="light">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Transportasi - Admin Wisata Jomokerto</title>
+  <link rel="stylesheet" href="../css/admin.css">
+</head>
+<body>
+<div id="adminPanel" style="display:none;width:100%">
+  <div class="main" id="mainContent">
+    <div class="page-content">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px">
+        <div>
+          <h1 style="font-size:24px;font-weight:800;color:var(--text-primary)">✈️ Manajemen Transportasi</h1>
+          <p style="color:var(--text-muted);font-size:14px">Data rute yang diubah langsung tampil di website</p>
+        </div>
+        <button class="btn btn-primary" onclick="TA.openAdd()">➕ Tambah Rute</button>
+      </div>
+
+      <div class="stats-grid" style="margin-bottom:24px" id="tStats"></div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">🚌 Daftar Rute <span id="tCount" style="font-size:12px;color:var(--text-muted);font-weight:400"></span></div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <input type="text" id="tSearch" placeholder="🔍 Cari rute..." style="padding:8px 12px;border-radius:8px;border:1.5px solid var(--border);background:var(--bg);font-size:13px;font-family:var(--font);color:var(--text-primary);width:180px" oninput="TA.filter()">
+            <select id="tFltrTipe" onchange="TA.filter()" style="padding:8px 12px;border-radius:8px;border:1.5px solid var(--border);background:var(--bg);font-size:13px;font-family:var(--font);color:var(--text-primary)">
+              <option value="all">Semua Tipe</option>
+              <option value="pesawat">✈️ Pesawat</option>
+              <option value="bus">🚌 Bus</option>
+              <option value="kapal">🚢 Kapal</option>
+              <option value="kereta">🚆 Kereta</option>
+            </select>
+            <select id="tFltrStatus" onchange="TA.filter()" style="padding:8px 12px;border-radius:8px;border:1.5px solid var(--border);background:var(--bg);font-size:13px;font-family:var(--font);color:var(--text-primary)">
+              <option value="all">Semua Status</option>
+              <option value="aktif">Aktif</option>
+              <option value="nonaktif">Nonaktif</option>
+            </select>
+          </div>
+        </div>
+        <div class="table-wrapper">
+          <table>
+            <thead><tr><th>Rute</th><th>Tipe</th><th>Operator</th><th>Jadwal</th><th>Durasi</th><th>Kelas</th><th>Harga</th><th>Status</th><th>Aksi</th></tr></thead>
+            <tbody id="tTbody"></tbody>
+          </table>
+        </div>
+        <div class="pagination" id="tPgn"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Form -->
+<div class="modal-overlay" id="tModal">
+  <div class="modal" style="max-width:580px">
+    <div class="modal-header">
+      <div class="modal-title" id="tModalTitle">➕ Tambah Rute</div>
+      <button class="modal-close" onclick="AdminModal.close('tModal')">×</button>
+    </div>
+    <div class="modal-body">
+      <form id="tForm">
+        <div class="form-grid form-grid-2">
+          <div class="form-group">
+            <label class="form-label">Tipe *</label>
+            <select name="tipe" class="form-input" required>
+              <option value="pesawat">✈️ Pesawat</option>
+              <option value="bus">🚌 Bus</option>
+              <option value="kapal">🚢 Kapal</option>
+              <option value="kereta">🚆 Kereta</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Nama Rute *</label>
+            <input type="text" name="nama" class="form-input" placeholder="Jakarta - Bali" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Asal *</label>
+            <input type="text" name="asal" class="form-input" placeholder="Jakarta (CGK)" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Tujuan *</label>
+            <input type="text" name="tujuan" class="form-input" placeholder="Bali (DPS)" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Operator</label>
+            <input type="text" name="operator" class="form-input" placeholder="Garuda Indonesia">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Kelas</label>
+            <select name="kelas" class="form-input">
+              <option value="ekonomi">Ekonomi</option>
+              <option value="bisnis">Bisnis</option>
+              <option value="eksekutif">Eksekutif</option>
+              <option value="first_class">First Class</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Jam Berangkat</label>
+            <input type="time" name="jam_berangkat" class="form-input">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Jam Tiba</label>
+            <input type="time" name="jam_tiba" class="form-input">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Durasi</label>
+            <input type="text" name="durasi" class="form-input" placeholder="1j 45m">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Harga (Rp) *</label>
+            <input type="number" name="harga" class="form-input" placeholder="650000" min="0" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Status</label>
+            <select name="status" class="form-input">
+              <option value="aktif">✅ Aktif</option>
+              <option value="nonaktif">⏸ Nonaktif</option>
+            </select>
+          </div>
+        </div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="AdminModal.close('tModal')">Batal</button>
+      <button class="btn btn-primary" onclick="TA.save()">💾 Simpan</button>
+    </div>
+  </div>
+</div>
+
+<div id="toastContainer" class="toast-container"></div>
+<script src="admin-shared.js"></script>
+<script src="admin.js"></script>
+<script>
+const TA = {
+  all:[], shown:[], pg:1, perPg:10, editId:null,
+
+  init() { this.reload(); },
+
+  reload() {
+    this.all = WJData.getTransport();
+    this.renderStats();
+    this.filter();
+  },
+
+  renderStats() {
+    const icons={pesawat:'✈️',bus:'🚌',kapal:'🚢',kereta:'🚆'};
+    const el=document.getElementById('tStats'); if(!el) return;
+    el.innerHTML=['pesawat','bus','kapal','kereta'].map(t=>`
+      <div class="stat-card">
+        <div class="stat-icon" style="background:var(--primary-light);font-size:22px">${icons[t]}</div>
+        <div><div class="stat-num">${this.all.filter(d=>d.tipe===t).length}</div><div class="stat-label">${t.charAt(0).toUpperCase()+t.slice(1)}</div></div>
+      </div>`).join('') + `<div class="stat-card">
+        <div class="stat-icon" style="background:#dcfce7">📋</div>
+        <div><div class="stat-num">${this.all.length}</div><div class="stat-label">Total Rute</div></div>
+      </div>`;
+  },
+
+  filter() {
+    const q=(document.getElementById('tSearch')?.value||'').toLowerCase();
+    const tp=document.getElementById('tFltrTipe')?.value||'all';
+    const st=document.getElementById('tFltrStatus')?.value||'all';
+    this.shown=this.all.filter(t=>
+      (!q||t.nama.toLowerCase().includes(q)||(t.asal||'').toLowerCase().includes(q)||(t.tujuan||'').toLowerCase().includes(q))&&
+      (tp==='all'||t.tipe===tp)&&(st==='all'||t.status===st)
+    );
+    this.pg=1; this.render();
+  },
+
+  render() {
+    const tb=document.getElementById('tTbody'); if(!tb) return;
+    const c=document.getElementById('tCount'); if(c) c.textContent=`(${this.shown.length} rute)`;
+    const rows=this.shown.slice((this.pg-1)*this.perPg, this.pg*this.perPg);
+    const icons={pesawat:'✈️',bus:'🚌',kapal:'🚢',kereta:'🚆'};
+
+    if(!rows.length){tb.innerHTML=`<tr><td colspan="9" style="text-align:center;padding:40px;color:var(--text-muted)">Tidak ada data</td></tr>`;return;}
+    tb.innerHTML=rows.map(t=>`
+      <tr>
+        <td><div style="font-weight:600;font-size:13px">${t.nama}</div><div style="font-size:11px;color:var(--text-muted)">${t.asal||''} → ${t.tujuan||''}</div></td>
+        <td><span style="background:var(--primary-light);color:var(--primary);padding:3px 10px;border-radius:99px;font-size:12px;font-weight:700">${icons[t.tipe]||''} ${t.tipe}</span></td>
+        <td style="font-size:13px">${t.operator||'-'}</td>
+        <td style="font-size:12px">${t.jam_berangkat||'?'} → ${t.jam_tiba||'?'}</td>
+        <td style="font-size:13px">${t.durasi||'-'}</td>
+        <td style="font-size:12px;text-transform:capitalize">${t.kelas||'-'}</td>
+        <td style="font-weight:700;color:var(--primary)">${fmt.currency(t.harga)}</td>
+        <td>${fmt.statusBadge(t.status||'aktif')}</td>
+        <td><div style="display:flex;gap:5px">
+          <button class="btn btn-secondary btn-sm" onclick="TA.openEdit(${JSON.stringify(t.id)})">✏️</button>
+          <button class="btn btn-sm" style="background:${t.status==='aktif'?'#dcfce7':'#fee2e2'};color:${t.status==='aktif'?'#15803d':'#dc2626'}" onclick="TA.toggleStatus(${JSON.stringify(t.id)})">🔄</button>
+          <button class="btn btn-sm" style="background:#fee2e2;color:#dc2626" onclick="TA.del(${JSON.stringify(t.id)})">🗑️</button>
+        </div></td>
+      </tr>`).join('');
+
+    const pages=Math.ceil(this.shown.length/this.perPg);
+    const pg=document.getElementById('tPgn');
+    if(pg) pg.innerHTML=pages>1?Array.from({length:pages},(_,i)=>
+      `<button onclick="TA.pg=${i+1};TA.render()" class="page-btn ${this.pg===i+1?'active':''}">${i+1}</button>`).join(''):'' ;
+  },
+
+  openAdd() {
+    this.editId=null;
+    document.getElementById('tModalTitle').textContent='➕ Tambah Rute';
+    document.getElementById('tForm').reset();
+    AdminModal.open('tModal');
+  },
+
+  openEdit(id) {
+    const t=this.all.find(x=>x.id===id); if(!t) return;
+    this.editId=id;
+    document.getElementById('tModalTitle').textContent='✏️ Edit Rute';
+    const f=document.getElementById('tForm');
+    Object.keys(t).forEach(k=>{ if(f.elements[k]) f.elements[k].value=t[k]||''; });
+    AdminModal.open('tModal');
+  },
+
+  save() {
+    const f=document.getElementById('tForm');
+    const data={};
+    new FormData(f).forEach((v,k)=>data[k]=v);
+    if(!data.nama||!data.asal||!data.tujuan||!data.harga){AdminToast.show('Lengkapi field wajib!','warning');return;}
+    data.harga=parseInt(data.harga)||0;
+
+    if(this.editId) {
+      WJData.saveTransportEdit(this.editId, data);
+      AdminToast.show('✅ Rute diperbarui! Tersimpan di website.','success');
+    } else {
+      const custom=JSON.parse(localStorage.getItem('wj-transport-custom')||'[]');
+      custom.push({...data, id:'T'+Date.now()});
+      WJData.saveTransportCustom(custom);
+      AdminToast.show('✅ Rute baru ditambahkan!','success');
+    }
+    AdminModal.close('tModal');
+    this.reload();
+  },
+
+  toggleStatus(id) {
+    const t=this.all.find(x=>x.id===id); if(!t) return;
+    const s=(t.status||'aktif')==='aktif'?'nonaktif':'aktif';
+    WJData.saveTransportEdit(id,{status:s});
+    AdminToast.show(`Status → ${s}`,'info');
+    this.reload();
+  },
+
+  del(id) {
+    const t=this.all.find(x=>x.id===id);
+    if(!t||!confirm(`Hapus rute "${t.nama}"?`)) return;
+    WJData.deleteTransport(id);
+    AdminToast.show('🗑️ Rute dihapus','info');
+    this.reload();
+  }
+};
+document.addEventListener('DOMContentLoaded',()=>{
+  adminPageInit({page:'transport',breadcrumb:'Transportasi',init:()=>TA.init()});
+});
+</script>
+</body></html>

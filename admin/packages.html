@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="light">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Paket Wisata - Admin Wisata Jomokerto</title>
+  <link rel="stylesheet" href="../css/admin.css">
+</head>
+<body>
+<div id="adminPanel" style="display:none;width:100%">
+  <div class="main" id="mainContent">
+    <div class="page-content">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px">
+        <div>
+          <h1 style="font-size:24px;font-weight:800;color:var(--text-primary)">🎁 Manajemen Paket Wisata</h1>
+          <p style="color:var(--text-muted);font-size:14px">Paket yang ditambahkan langsung tampil di section Paket website</p>
+        </div>
+        <button class="btn btn-primary" onclick="PA.openAdd()">➕ Tambah Paket</button>
+      </div>
+
+      <div class="stats-grid" style="margin-bottom:24px">
+        <div class="stat-card"><div class="stat-icon" style="background:var(--primary-light)">🎁</div><div><div class="stat-num" id="pkgTotal">-</div><div class="stat-label">Total Paket</div></div></div>
+        <div class="stat-card"><div class="stat-icon" style="background:#dcfce7">✅</div><div><div class="stat-num" id="pkgAktif">-</div><div class="stat-label">Aktif</div></div></div>
+        <div class="stat-card"><div class="stat-icon" style="background:#fef3c7">⭐</div><div><div class="stat-num" id="pkgFeatured">-</div><div class="stat-label">Featured</div></div></div>
+        <div class="stat-card"><div class="stat-icon" style="background:#e0f2fe">🇮🇩</div><div><div class="stat-num" id="pkgDN">-</div><div class="stat-label">Dalam Negeri</div></div></div>
+        <div class="stat-card"><div class="stat-icon" style="background:#fce7f3">🌍</div><div><div class="stat-num" id="pkgLN">-</div><div class="stat-label">Luar Negeri</div></div></div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">📋 Daftar Paket <span id="pkgCount" style="font-size:12px;color:var(--text-muted);font-weight:400"></span></div>
+          <div style="display:flex;gap:8px">
+            <input type="text" id="pkgSearch" placeholder="🔍 Cari paket..." style="padding:8px 12px;border-radius:8px;border:1.5px solid var(--border);background:var(--bg);font-size:13px;font-family:var(--font);color:var(--text-primary);width:180px" oninput="PA.filter()">
+            <select id="pkgFltrStatus" onchange="PA.filter()" style="padding:8px 12px;border-radius:8px;border:1.5px solid var(--border);background:var(--bg);font-size:13px;font-family:var(--font);color:var(--text-primary)">
+              <option value="all">Semua Status</option>
+              <option value="aktif">Aktif</option>
+              <option value="nonaktif">Nonaktif</option>
+            </select>
+          </div>
+        </div>
+        <div class="table-wrapper">
+          <table>
+            <thead><tr><th>Paket</th><th>Destinasi</th><th>Durasi</th><th>Peserta</th><th>Harga</th><th>Featured</th><th>Status</th><th>Aksi</th></tr></thead>
+            <tbody id="pkgTbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Form -->
+<div class="modal-overlay" id="pkgModal">
+  <div class="modal" style="max-width:640px">
+    <div class="modal-header">
+      <div class="modal-title" id="pkgModalTitle">➕ Tambah Paket Wisata</div>
+      <button class="modal-close" onclick="AdminModal.close('pkgModal')">×</button>
+    </div>
+    <div class="modal-body" style="max-height:72vh;overflow-y:auto">
+      <form id="pkgForm">
+        <div class="form-grid form-grid-2">
+          <div class="form-group form-span-2">
+            <label class="form-label">Nama Paket *</label>
+            <input type="text" name="nama" class="form-input" placeholder="Paket Bromo 3D2N" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Nama Destinasi</label>
+            <input type="text" name="namaDestinasi" class="form-input" placeholder="Bromo Tengger Semeru">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Durasi (Hari)</label>
+            <input type="number" name="durasi" class="form-input" placeholder="3" min="1">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Harga/Orang (Rp) *</label>
+            <input type="number" name="harga" class="form-input" placeholder="1850000" min="0" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Min. Peserta</label>
+            <input type="number" name="minPeserta" class="form-input" placeholder="2" min="1">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Maks. Peserta</label>
+            <input type="number" name="maxPeserta" class="form-input" placeholder="15" min="1">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Status</label>
+            <select name="status" class="form-input">
+              <option value="aktif">✅ Aktif</option>
+              <option value="nonaktif">⏸ Nonaktif</option>
+            </select>
+          </div>
+          <div class="form-group form-span-2">
+            <label class="form-label">URL Gambar</label>
+            <input type="url" name="gambar" class="form-input" placeholder="https://..." oninput="PA.prevImg(this)">
+            <img id="pkgImgPrev" style="display:none;width:100%;height:110px;object-fit:cover;border-radius:8px;margin-top:8px" onerror="this.style.display='none'">
+          </div>
+          <div class="form-group form-span-2">
+            <label class="form-label">Include (sudah termasuk)</label>
+            <input type="text" name="include" class="form-input" placeholder="Transport PP, Hotel 2 malam, Guide, Sarapan">
+          </div>
+          <div class="form-group form-span-2">
+            <label class="form-label">Exclude (belum termasuk)</label>
+            <input type="text" name="exclude" class="form-input" placeholder="Makan siang & malam, Pengeluaran pribadi">
+          </div>
+          <div class="form-group form-span-2">
+            <label class="form-label">Deskripsi</label>
+            <textarea name="deskripsi" class="form-input" rows="3" placeholder="Deskripsi singkat paket..."></textarea>
+          </div>
+          <div class="form-group form-span-2">
+            <label style="display:flex;align-items:center;gap:10px;cursor:pointer">
+              <input type="checkbox" name="is_featured" style="width:18px;height:18px;accent-color:var(--primary)">
+              <span style="font-size:14px;font-weight:600;color:var(--text-primary)">⭐ Tampilkan sebagai Paket Featured</span>
+            </label>
+          </div>
+        </div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="AdminModal.close('pkgModal')">Batal</button>
+      <button class="btn btn-primary" onclick="PA.save()">💾 Simpan Paket</button>
+    </div>
+  </div>
+</div>
+
+<div id="toastContainer" class="toast-container"></div>
+<script src="admin-shared.js"></script>
+<script src="admin.js"></script>
+<script>
+const PA = {
+  all:[], shown:[], editId:null,
+
+  init() { this.reload(); },
+
+  reload() {
+    this.all = WJData.getPackages();
+    this.stats(); this.filter();
+  },
+
+  stats() {
+    const d=this.all;
+    const s=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v;};
+    s('pkgTotal',d.length);
+    s('pkgAktif',d.filter(x=>!x.status||x.status==='aktif').length);
+    s('pkgFeatured',d.filter(x=>x.is_featured).length);
+    // Tentukan DN/LN dari nama destinasi
+    const allDests = WJData.getDestinations();
+    s('pkgDN', d.filter(p=>{const dest=allDests.find(dd=>dd.id===p.destId||dd.nama===p.namaDestinasi);return dest&&dest.tipe==='dalam_negeri';}).length);
+    s('pkgLN', d.filter(p=>{const dest=allDests.find(dd=>dd.id===p.destId||dd.nama===p.namaDestinasi);return dest&&dest.tipe==='luar_negeri';}).length);
+  },
+
+  filter() {
+    const q=(document.getElementById('pkgSearch')?.value||'').toLowerCase();
+    const st=document.getElementById('pkgFltrStatus')?.value||'all';
+    this.shown=this.all.filter(p=>
+      (!q||p.nama.toLowerCase().includes(q)||(p.namaDestinasi||'').toLowerCase().includes(q))&&
+      (st==='all'||(p.status||'aktif')===st)
+    );
+    this.render();
+  },
+
+  render() {
+    const tb=document.getElementById('pkgTbody'); if(!tb) return;
+    const c=document.getElementById('pkgCount'); if(c) c.textContent=`(${this.shown.length} paket)`;
+    if(!this.shown.length){tb.innerHTML=`<tr><td colspan="8" style="text-align:center;padding:40px;color:var(--text-muted)">Tidak ada paket</td></tr>`;return;}
+    tb.innerHTML=this.shown.map(p=>`
+      <tr>
+        <td>
+          <div style="display:flex;align-items:center;gap:10px">
+            <img src="${p.gambar||''}" style="width:48px;height:36px;object-fit:cover;border-radius:6px;flex-shrink:0" onerror="this.style.opacity='.2'">
+            <div>
+              <div style="font-weight:700;font-size:13px">${p.nama}</div>
+              <div style="font-size:11px;color:var(--text-muted)">${(p.deskripsi||'').substring(0,45)}${(p.deskripsi||'').length>45?'...':''}</div>
+            </div>
+          </div>
+        </td>
+        <td style="font-size:13px">${p.namaDestinasi||'-'}</td>
+        <td style="font-weight:600;text-align:center">${p.durasi||'-'} <span style="font-size:11px;color:var(--text-muted)">hari</span></td>
+        <td style="font-size:12px;text-align:center">${p.minPeserta||1}–${p.maxPeserta||20} pax</td>
+        <td style="font-weight:700;color:var(--primary)">${fmt.currency(p.harga)}</td>
+        <td>${p.is_featured?'<span style="background:#fef3c7;color:#d97706;padding:2px 8px;border-radius:6px;font-size:11px;font-weight:700">⭐ Ya</span>':'-'}</td>
+        <td>${fmt.statusBadge(p.status||'aktif')}</td>
+        <td><div style="display:flex;gap:5px">
+          <button class="btn btn-secondary btn-sm" onclick="PA.openEdit(${JSON.stringify(p.id)})">✏️</button>
+          <button class="btn btn-sm" style="background:#fee2e2;color:#dc2626" onclick="PA.del(${JSON.stringify(p.id)})">🗑️</button>
+        </div></td>
+      </tr>`).join('');
+  },
+
+  prevImg(input) {
+    const img=document.getElementById('pkgImgPrev');
+    img.src=input.value; img.style.display=input.value?'block':'none';
+    img.onerror=()=>img.style.display='none';
+  },
+
+  openAdd() {
+    this.editId=null;
+    document.getElementById('pkgModalTitle').textContent='➕ Tambah Paket Wisata';
+    document.getElementById('pkgForm').reset();
+    document.getElementById('pkgImgPrev').style.display='none';
+    AdminModal.open('pkgModal');
+  },
+
+  openEdit(id) {
+    const p=this.all.find(x=>x.id===id); if(!p) return;
+    this.editId=id;
+    document.getElementById('pkgModalTitle').textContent='✏️ Edit Paket';
+    const f=document.getElementById('pkgForm');
+    ['nama','namaDestinasi','durasi','harga','minPeserta','maxPeserta','gambar','include','exclude','deskripsi','status'].forEach(k=>{ if(f.elements[k]) f.elements[k].value=p[k]||''; });
+    f.elements['is_featured'].checked=!!p.is_featured;
+    const img=document.getElementById('pkgImgPrev');
+    if(p.gambar){img.src=p.gambar;img.style.display='block';}else img.style.display='none';
+    AdminModal.open('pkgModal');
+  },
+
+  save() {
+    const f=document.getElementById('pkgForm');
+    const data={};
+    new FormData(f).forEach((v,k)=>data[k]=v);
+    data.is_featured=f.elements['is_featured'].checked;
+    data.harga=parseInt(data.harga)||0;
+    data.durasi=parseInt(data.durasi)||1;
+    data.minPeserta=parseInt(data.minPeserta)||1;
+    data.maxPeserta=parseInt(data.maxPeserta)||20;
+    if(!data.nama||!data.harga){AdminToast.show('Nama dan harga wajib diisi!','warning');return;}
+
+    if(this.editId) {
+      WJData.savePkgEdit(this.editId, data);
+      AdminToast.show(`✅ Paket "${data.nama}" diperbarui! Tampil di website.`,'success');
+    } else {
+      const custom=JSON.parse(localStorage.getItem('wj-pkg-custom')||'[]');
+      custom.push({...data, id:'P'+Date.now()});
+      WJData.savePkgCustom(custom);
+      AdminToast.show(`✅ Paket "${data.nama}" ditambahkan! Tampil di website.`,'success');
+    }
+    AdminModal.close('pkgModal');
+    this.reload();
+  },
+
+  del(id) {
+    const p=this.all.find(x=>x.id===id);
+    if(!p||!confirm(`Hapus paket "${p.nama}"?`)) return;
+    WJData.deletePkg(id);
+    AdminToast.show('🗑️ Paket dihapus','info');
+    this.reload();
+  }
+};
+document.addEventListener('DOMContentLoaded',()=>{
+  adminPageInit({page:'packages',breadcrumb:'Paket Wisata',init:()=>PA.init()});
+});
+</script>
+</body></html>

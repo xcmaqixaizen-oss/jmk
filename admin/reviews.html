@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="light">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ulasan - Admin Wisata Jomokerto</title>
+  <link rel="stylesheet" href="../css/admin.css">
+</head>
+<body>
+<div id="adminPanel" style="display:none;width:100%">
+  <div class="main" id="mainContent">
+    <div class="page-content">
+      <div style="margin-bottom:24px">
+        <h1 style="font-size:24px;font-weight:800;color:var(--text-primary)">⭐ Manajemen Ulasan</h1>
+        <p style="color:var(--text-muted);font-size:14px">Moderasi ulasan dari semua pengguna</p>
+      </div>
+
+      <div class="stats-grid" style="margin-bottom:24px">
+        <div class="stat-card"><div class="stat-icon" style="background:var(--primary-light)">💬</div><div><div class="stat-num" id="rvTotal">-</div><div class="stat-label">Total Ulasan</div></div></div>
+        <div class="stat-card"><div class="stat-icon" style="background:#fef3c7">⭐</div><div><div class="stat-num" id="rvAvg">-</div><div class="stat-label">Rata-rata Rating</div></div></div>
+        <div class="stat-card"><div class="stat-icon" style="background:#dcfce7">5️⃣</div><div><div class="stat-num" id="rv5">-</div><div class="stat-label">Bintang 5</div></div></div>
+        <div class="stat-card"><div class="stat-icon" style="background:#fee2e2">1️⃣</div><div><div class="stat-num" id="rv1">-</div><div class="stat-label">Bintang 1</div></div></div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">💬 Daftar Ulasan <span id="rvCount" style="font-size:12px;color:var(--text-muted);font-weight:400"></span></div>
+          <div style="display:flex;gap:8px">
+            <input type="text" id="rvSearch" placeholder="🔍 Cari destinasi/nama..." style="padding:8px 12px;border-radius:8px;border:1.5px solid var(--border);background:var(--bg);font-size:13px;font-family:var(--font);color:var(--text-primary);width:200px" oninput="RVA.filter()">
+            <select id="rvFltrStar" onchange="RVA.filter()" style="padding:8px 12px;border-radius:8px;border:1.5px solid var(--border);background:var(--bg);font-size:13px;font-family:var(--font);color:var(--text-primary)">
+              <option value="all">Semua Rating</option>
+              <option value="5">⭐⭐⭐⭐⭐ 5 Bintang</option>
+              <option value="4">⭐⭐⭐⭐ 4 Bintang</option>
+              <option value="3">⭐⭐⭐ 3 Bintang</option>
+              <option value="2">⭐⭐ 2 Bintang</option>
+              <option value="1">⭐ 1 Bintang</option>
+            </select>
+          </div>
+        </div>
+        <div id="rvGrid" style="padding:16px;display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="toastContainer" class="toast-container"></div>
+<script src="admin-shared.js"></script>
+<script src="admin.js"></script>
+<script>
+const RVA = {
+  all:[], shown:[],
+
+  init() { this.reload(); },
+
+  reload() {
+    // Kumpulkan semua ulasan dari semua user (key wj-reviews-{userId})
+    this.all = [];
+    const users = WJData.getUsers();
+    users.forEach(u => {
+      const rvs = JSON.parse(localStorage.getItem(`wj-reviews-${u.id}`) || '[]');
+      rvs.forEach(r => this.all.push({...r, userName: u.name, userEmail: u.email}));
+    });
+    // Juga cek key umum
+    const general = JSON.parse(localStorage.getItem('wj-reviews') || '[]');
+    general.forEach(r => {
+      if(!this.all.find(x=>x.id===r.id)) {
+        const u = users.find(uu=>String(uu.id)===String(r.userId));
+        this.all.push({...r, userName: u?.name||r.userName||'Anonim'});
+      }
+    });
+    this.all.sort((a,b)=>new Date(b.createdAt||0)-new Date(a.createdAt||0));
+    this.stats(); this.filter();
+  },
+
+  stats() {
+    const d=this.all;
+    const s=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v;};
+    s('rvTotal',d.length);
+    const avg=d.length?(d.reduce((sum,r)=>sum+(r.rating||0),0)/d.length).toFixed(1):'-';
+    s('rvAvg',avg);
+    s('rv5',d.filter(r=>r.rating===5).length);
+    s('rv1',d.filter(r=>r.rating===1).length);
+  },
+
+  filter() {
+    const q=(document.getElementById('rvSearch')?.value||'').toLowerCase();
+    const star=document.getElementById('rvFltrStar')?.value||'all';
+    this.shown=this.all.filter(r=>
+      (!q||(r.destNama||r.namaDestinasi||'').toLowerCase().includes(q)||(r.userName||'').toLowerCase().includes(q))&&
+      (star==='all'||r.rating===parseInt(star))
+    );
+    const c=document.getElementById('rvCount'); if(c) c.textContent=`(${this.shown.length} ulasan)`;
+    this.render();
+  },
+
+  render() {
+    const el=document.getElementById('rvGrid'); if(!el) return;
+    if(!this.shown.length){ el.innerHTML=`<div style="grid-column:1/-1;text-align:center;padding:60px;color:var(--text-muted)">Belum ada ulasan</div>`; return; }
+    el.innerHTML=this.shown.map(r=>`
+      <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:16px;position:relative">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+          <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--secondary));display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:white;flex-shrink:0">${(r.userName||'?').charAt(0).toUpperCase()}</div>
+          <div>
+            <div style="font-weight:700;font-size:13px">${r.userName||'Anonim'}</div>
+            <div style="font-size:11px;color:var(--text-muted)">${r.destNama||r.namaDestinasi||'-'}</div>
+          </div>
+          <div style="margin-left:auto;color:#f59e0b;font-size:14px;font-weight:800">${'★'.repeat(r.rating||0)}<span style="color:var(--text-muted)">${'☆'.repeat(5-(r.rating||0))}</span></div>
+        </div>
+        <p style="font-size:13px;color:var(--text-secondary);line-height:1.6;margin-bottom:10px">"${r.komentar||r.comment||'-'}"</p>
+        <div style="display:flex;align-items:center;justify-content:space-between">
+          <span style="font-size:11px;color:var(--text-muted)">${fmt.datetime(r.createdAt)}</span>
+          <button onclick="RVA.del(${JSON.stringify(r.id)},${JSON.stringify(r.userId)})" style="background:#fee2e2;color:#dc2626;border:none;border-radius:6px;padding:4px 10px;font-size:12px;cursor:pointer;font-family:var(--font)">🗑️ Hapus</button>
+        </div>
+      </div>`).join('');
+  },
+
+  del(id, userId) {
+    if(!confirm('Hapus ulasan ini?')) return;
+    // Hapus dari key user spesifik
+    if(userId) {
+      const rvs=JSON.parse(localStorage.getItem(`wj-reviews-${userId}`)||'[]');
+      localStorage.setItem(`wj-reviews-${userId}`,JSON.stringify(rvs.filter(r=>r.id!==id)));
+    }
+    // Hapus dari key umum
+    const gen=JSON.parse(localStorage.getItem('wj-reviews')||'[]');
+    localStorage.setItem('wj-reviews',JSON.stringify(gen.filter(r=>r.id!==id)));
+    AdminToast.show('🗑️ Ulasan dihapus','info');
+    this.reload();
+  }
+};
+document.addEventListener('DOMContentLoaded',()=>{
+  adminPageInit({page:'reviews',breadcrumb:'Ulasan',init:()=>RVA.init()});
+});
+</script>
+</body></html>

@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="light">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Destinasi - Admin Wisata Jomokerto</title>
+  <link rel="stylesheet" href="../css/admin.css">
+</head>
+<body>
+<div id="adminPanel" style="display:none;width:100%">
+  <div class="main" id="mainContent">
+    <div class="page-content">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px">
+        <div>
+          <h1 style="font-size:24px;font-weight:800;color:var(--text-primary)">🗺️ Manajemen Destinasi</h1>
+          <p style="color:var(--text-muted);font-size:14px">Data yang diubah langsung tampil di website utama</p>
+        </div>
+        <button class="btn btn-primary" onclick="DA.openAdd()">➕ Tambah Destinasi</button>
+      </div>
+
+      <!-- Stats -->
+      <div class="stats-grid" style="margin-bottom:24px">
+        <div class="stat-card"><div class="stat-icon" style="background:#e8f0fe">🗺️</div><div><div class="stat-num" id="stTotal">-</div><div class="stat-label">Total Destinasi</div></div></div>
+        <div class="stat-card"><div class="stat-icon" style="background:#e0f2fe">🇮🇩</div><div><div class="stat-num" id="stDN">-</div><div class="stat-label">Dalam Negeri</div></div></div>
+        <div class="stat-card"><div class="stat-icon" style="background:#fce7f3">🌍</div><div><div class="stat-num" id="stLN">-</div><div class="stat-label">Luar Negeri</div></div></div>
+        <div class="stat-card"><div class="stat-icon" style="background:#fef3c7">⭐</div><div><div class="stat-num" id="stFeatured">-</div><div class="stat-label">Featured</div></div></div>
+        <div class="stat-card"><div class="stat-icon" style="background:#dcfce7">✅</div><div><div class="stat-num" id="stAktif">-</div><div class="stat-label">Aktif</div></div></div>
+      </div>
+
+      <!-- Table -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">📋 Daftar Destinasi <span id="destCount" style="font-size:12px;color:var(--text-muted);font-weight:400"></span></div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <input type="text" id="srchDest" placeholder="🔍 Cari nama/lokasi..." style="padding:8px 12px;border-radius:8px;border:1.5px solid var(--border);background:var(--bg);font-size:13px;font-family:var(--font);color:var(--text-primary);width:180px" oninput="DA.filter()">
+            <select id="fltrTipe" onchange="DA.filter()" style="padding:8px 12px;border-radius:8px;border:1.5px solid var(--border);background:var(--bg);font-size:13px;font-family:var(--font);color:var(--text-primary)">
+              <option value="all">Semua Tipe</option>
+              <option value="dalam_negeri">🇮🇩 Dalam Negeri</option>
+              <option value="luar_negeri">🌍 Luar Negeri</option>
+            </select>
+            <select id="fltrKat" onchange="DA.filter()" style="padding:8px 12px;border-radius:8px;border:1.5px solid var(--border);background:var(--bg);font-size:13px;font-family:var(--font);color:var(--text-primary)">
+              <option value="all">Semua Kategori</option>
+              <option value="pantai">Pantai</option>
+              <option value="gunung">Gunung</option>
+              <option value="budaya">Budaya</option>
+              <option value="alam">Alam</option>
+              <option value="kota">Kota</option>
+            </select>
+          </div>
+        </div>
+        <div class="table-wrapper">
+          <table>
+            <thead><tr><th>Destinasi</th><th>Tipe</th><th>Kategori</th><th>Harga</th><th>Rating</th><th>Featured</th><th>Status</th><th>Aksi</th></tr></thead>
+            <tbody id="destTbody"></tbody>
+          </table>
+        </div>
+        <div class="pagination" id="destPgn"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Form -->
+<div class="modal-overlay" id="destModal">
+  <div class="modal" style="max-width:620px">
+    <div class="modal-header">
+      <div class="modal-title" id="destModalTitle">➕ Tambah Destinasi</div>
+      <button class="modal-close" onclick="AdminModal.close('destModal')">×</button>
+    </div>
+    <div class="modal-body" style="max-height:72vh;overflow-y:auto">
+      <form id="destForm">
+        <div class="form-grid form-grid-2">
+          <div class="form-group form-span-2">
+            <label class="form-label">Nama Destinasi *</label>
+            <input type="text" name="nama" class="form-input" placeholder="Bromo Tengger Semeru" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Lokasi *</label>
+            <input type="text" name="lokasi" class="form-input" placeholder="Probolinggo, Jawa Timur" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Negara</label>
+            <input type="text" name="negara" class="form-input" placeholder="Indonesia">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Tipe</label>
+            <select name="tipe" class="form-input">
+              <option value="dalam_negeri">🇮🇩 Dalam Negeri</option>
+              <option value="luar_negeri">🌍 Luar Negeri</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Kategori</label>
+            <select name="kategori" class="form-input">
+              <option value="pantai">🏖️ Pantai</option>
+              <option value="gunung">⛰️ Gunung</option>
+              <option value="budaya">🏛️ Budaya</option>
+              <option value="alam">🌿 Alam</option>
+              <option value="kota">🏙️ Kota</option>
+              <option value="kuliner">🍜 Kuliner</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Harga/Orang (Rp) *</label>
+            <input type="number" name="harga" class="form-input" placeholder="250000" min="0" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Rating (1-5)</label>
+            <input type="number" name="rating" class="form-input" placeholder="4.5" min="1" max="5" step="0.1">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Jam Buka</label>
+            <input type="text" name="jam_buka" class="form-input" placeholder="06:00 - 18:00">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Status</label>
+            <select name="status" class="form-input">
+              <option value="aktif">✅ Aktif</option>
+              <option value="nonaktif">⏸ Nonaktif</option>
+            </select>
+          </div>
+          <div class="form-group form-span-2">
+            <label class="form-label">URL Gambar</label>
+            <input type="url" name="gambar" class="form-input" placeholder="https://images.unsplash.com/..." oninput="DA.prevImg(this)">
+            <img id="destImgPrev" style="display:none;width:100%;height:120px;object-fit:cover;border-radius:8px;margin-top:8px" onerror="this.style.display='none'">
+          </div>
+          <div class="form-group form-span-2">
+            <label class="form-label">Deskripsi</label>
+            <textarea name="deskripsi" class="form-input" rows="3" placeholder="Deskripsi singkat destinasi..."></textarea>
+          </div>
+          <div class="form-group form-span-2">
+            <label style="display:flex;align-items:center;gap:10px;cursor:pointer">
+              <input type="checkbox" name="is_featured" style="width:18px;height:18px;accent-color:var(--primary)">
+              <span style="font-size:14px;font-weight:600;color:var(--text-primary)">⭐ Tampilkan sebagai Featured di website</span>
+            </label>
+          </div>
+        </div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="AdminModal.close('destModal')">Batal</button>
+      <button class="btn btn-primary" onclick="DA.save()">💾 Simpan</button>
+    </div>
+  </div>
+</div>
+
+<div id="toastContainer" class="toast-container"></div>
+<script src="admin-shared.js"></script>
+<script src="admin.js"></script>
+<script>
+const DA = {
+  all:[], shown:[], pg:1, perPg:10, editId:null,
+
+  init() { this.reload(); },
+
+  reload() {
+    this.all = WJData.getDestinations();
+    this.stats();
+    this.filter();
+  },
+
+  stats() {
+    const d = this.all;
+    const s = (id,v) => { const e=document.getElementById(id); if(e) e.textContent=v; };
+    s('stTotal', d.length);
+    s('stDN', d.filter(x=>x.tipe==='dalam_negeri').length);
+    s('stLN', d.filter(x=>x.tipe==='luar_negeri').length);
+    s('stFeatured', d.filter(x=>x.is_featured||x.featured).length);
+    s('stAktif', d.filter(x=>!x.status||x.status==='aktif').length);
+  },
+
+  filter() {
+    const q = (document.getElementById('srchDest')?.value||'').toLowerCase();
+    const t = document.getElementById('fltrTipe')?.value||'all';
+    const k = document.getElementById('fltrKat')?.value||'all';
+    this.shown = this.all.filter(d =>
+      (!q || d.nama.toLowerCase().includes(q) || (d.lokasi||'').toLowerCase().includes(q)) &&
+      (t==='all'||d.tipe===t) &&
+      (k==='all'||d.kategori===k)
+    );
+    this.pg=1; this.render();
+  },
+
+  render() {
+    const tb = document.getElementById('destTbody'); if(!tb) return;
+    const c = document.getElementById('destCount');
+    if(c) c.textContent = `(${this.shown.length} destinasi)`;
+    const rows = this.shown.slice((this.pg-1)*this.perPg, this.pg*this.perPg);
+
+    if(!rows.length){ tb.innerHTML=`<tr><td colspan="8" style="text-align:center;padding:40px;color:var(--text-muted)">🔍 Tidak ada data</td></tr>`; return; }
+
+    tb.innerHTML = rows.map(d=>`
+      <tr>
+        <td>
+          <div style="display:flex;align-items:center;gap:10px">
+            <img src="${d.gambar||''}" style="width:44px;height:36px;object-fit:cover;border-radius:6px;flex-shrink:0" onerror="this.style.opacity='.2'">
+            <div>
+              <div style="font-weight:700;color:var(--text-primary);font-size:13px">${d.nama}</div>
+              <div style="font-size:11px;color:var(--text-muted)">📍 ${d.lokasi||'-'}</div>
+            </div>
+          </div>
+        </td>
+        <td>${fmt.tipeBadge(d.tipe)}</td>
+        <td style="font-size:12px;text-transform:capitalize">${d.kategori||'-'}</td>
+        <td style="font-weight:700;color:var(--primary)">${fmt.currency(d.harga)}</td>
+        <td><span style="color:#f59e0b;font-weight:700">★ ${d.rating||'-'}</span></td>
+        <td>${(d.is_featured||d.featured)?'<span style="background:#fef3c7;color:#d97706;padding:2px 8px;border-radius:6px;font-size:11px;font-weight:700">⭐ Ya</span>':'-'}</td>
+        <td>${fmt.statusBadge(d.status||'aktif')}</td>
+        <td>
+          <div style="display:flex;gap:5px">
+            <button class="btn btn-secondary btn-sm" onclick="DA.openEdit(${JSON.stringify(d.id)})">✏️</button>
+            <button class="btn btn-sm" style="background:${(d.is_featured||d.featured)?'#fef3c7':'var(--bg-card)'};color:${(d.is_featured||d.featured)?'#d97706':'var(--text-muted)'};border:1px solid var(--border)" onclick="DA.toggleFeatured(${JSON.stringify(d.id)})" title="Toggle Featured">⭐</button>
+            <button class="btn btn-sm" style="background:#fee2e2;color:#dc2626" onclick="DA.del(${JSON.stringify(d.id)})">🗑️</button>
+          </div>
+        </td>
+      </tr>`).join('');
+
+    const pages = Math.ceil(this.shown.length/this.perPg);
+    const pg = document.getElementById('destPgn');
+    if(pg) pg.innerHTML = pages>1 ? Array.from({length:pages},(_,i)=>
+      `<button onclick="DA.pg=${i+1};DA.render()" class="page-btn ${this.pg===i+1?'active':''}">${i+1}</button>`).join('') : '';
+  },
+
+  prevImg(input) {
+    const img=document.getElementById('destImgPrev');
+    img.src=input.value; img.style.display=input.value?'block':'none';
+    img.onerror=()=>img.style.display='none';
+  },
+
+  openAdd() {
+    this.editId=null;
+    document.getElementById('destModalTitle').textContent='➕ Tambah Destinasi';
+    document.getElementById('destForm').reset();
+    document.getElementById('destImgPrev').style.display='none';
+    AdminModal.open('destModal');
+  },
+
+  openEdit(id) {
+    const d = this.all.find(x=>x.id===id); if(!d) return;
+    this.editId = id;
+    document.getElementById('destModalTitle').textContent='✏️ Edit Destinasi';
+    const f = document.getElementById('destForm');
+    ['nama','lokasi','negara','tipe','kategori','harga','rating','jam_buka','status','gambar','deskripsi'].forEach(k=>{ if(f.elements[k]) f.elements[k].value=d[k]||''; });
+    f.elements['is_featured'].checked = !!(d.is_featured||d.featured);
+    const img=document.getElementById('destImgPrev');
+    if(d.gambar){img.src=d.gambar;img.style.display='block';}else{img.style.display='none';}
+    AdminModal.open('destModal');
+  },
+
+  save() {
+    const f = document.getElementById('destForm');
+    const data = {};
+    new FormData(f).forEach((v,k)=>data[k]=v);
+    data.is_featured = f.elements['is_featured'].checked;
+    data.featured = data.is_featured;
+    data.harga = parseInt(data.harga)||0;
+    data.rating = parseFloat(data.rating)||4.5;
+    if(!data.nama||!data.lokasi){ AdminToast.show('Nama dan lokasi wajib diisi!','warning'); return; }
+
+    if(this.editId) {
+      WJData.saveEditedDest(this.editId, data);
+      AdminToast.show(`✅ "${data.nama}" diperbarui! Sudah tampil di website.`,'success');
+    } else {
+      WJData.saveCustomDest([...JSON.parse(localStorage.getItem('wj-dest-custom')||'[]'), {...data, id:'D'+Date.now(), ulasan:0}]);
+      AdminToast.show(`✅ "${data.nama}" ditambahkan! Sudah tampil di website.`,'success');
+    }
+    AdminModal.close('destModal');
+    this.reload();
+  },
+
+  toggleFeatured(id) {
+    const d=this.all.find(x=>x.id===id); if(!d) return;
+    const val = !(d.is_featured||d.featured);
+    WJData.saveEditedDest(id,{is_featured:val,featured:val});
+    AdminToast.show(val?'⭐ Ditandai featured!':'Featured dilepas','info');
+    this.reload();
+  },
+
+  del(id) {
+    const d=this.all.find(x=>x.id===id);
+    if(!d||!confirm(`Hapus "${d.nama}"?\nDestinasi tidak akan tampil di website.`)) return;
+    WJData.deleteDest(id);
+    AdminToast.show('🗑️ Destinasi dihapus','info');
+    this.reload();
+  }
+};
+document.addEventListener('DOMContentLoaded',()=>{
+  adminPageInit({page:'destinations',breadcrumb:'Destinasi',init:()=>DA.init()});
+});
+</script>
+</body></html>

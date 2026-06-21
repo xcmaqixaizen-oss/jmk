@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="light">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Booking - Admin Wisata Jomokerto</title>
+  <link rel="stylesheet" href="../css/admin.css">
+</head>
+<body>
+<div id="adminPanel" style="display:none;width:100%">
+  <div class="main" id="mainContent">
+    <div class="page-content">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px">
+        <div>
+          <h1 style="font-size:24px;font-weight:800;color:var(--text-primary)">🎫 Manajemen Booking</h1>
+          <p style="color:var(--text-muted);font-size:14px">Kelola semua pesanan dari pengguna</p>
+        </div>
+        <button class="btn btn-primary" onclick="BookingAdmin.exportCSV()">📥 Export CSV</button>
+      </div>
+
+      <!-- Stats -->
+      <div class="stats-grid" style="margin-bottom:24px">
+        <div class="stat-card"><div class="stat-icon" style="background:var(--primary-light)">🎫</div><div><div class="stat-num" id="bkTotal">-</div><div class="stat-label">Total</div></div></div>
+        <div class="stat-card"><div class="stat-icon" style="background:#fef3c7">⏳</div><div><div class="stat-num" id="bkPending">-</div><div class="stat-label">Pending</div><div class="stat-change down">Perlu konfirmasi</div></div></div>
+        <div class="stat-card"><div class="stat-icon" style="background:#dbeafe">✅</div><div><div class="stat-num" id="bkConfirmed">-</div><div class="stat-label">Confirmed</div></div></div>
+        <div class="stat-card"><div class="stat-icon" style="background:#dcfce7">🏁</div><div><div class="stat-num" id="bkCompleted">-</div><div class="stat-label">Selesai</div></div></div>
+        <div class="stat-card"><div class="stat-icon" style="background:#fee2e2">❌</div><div><div class="stat-num" id="bkCancelled">-</div><div class="stat-label">Dibatalkan</div></div></div>
+        <div class="stat-card"><div class="stat-icon" style="background:#fce7f3">💰</div><div><div class="stat-num" id="bkRevenue">-</div><div class="stat-label">Total Pendapatan</div></div></div>
+      </div>
+
+      <!-- Filter & Table -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">📋 Daftar Booking</div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <input type="text" id="searchBk" placeholder="🔍 Cari kode/nama..." style="padding:8px 12px;border-radius:8px;border:1.5px solid var(--border);background:var(--bg);font-size:13px;font-family:var(--font);color:var(--text-primary);width:180px" oninput="BookingAdmin.filter()">
+            <select id="filterBkStatus" style="padding:8px 12px;border-radius:8px;border:1.5px solid var(--border);background:var(--bg);font-size:13px;font-family:var(--font);color:var(--text-primary)" onchange="BookingAdmin.filter()">
+              <option value="all">Semua Status</option>
+              <option value="pending">⏳ Pending</option>
+              <option value="confirmed">✅ Confirmed</option>
+              <option value="completed">🏁 Selesai</option>
+              <option value="cancelled">❌ Dibatalkan</option>
+            </select>
+          </div>
+        </div>
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr><th>Kode</th><th>Pelanggan</th><th>Destinasi</th><th>Tanggal</th><th>Peserta</th><th>Total</th><th>Bayar</th><th>Status</th><th>Aksi</th></tr>
+            </thead>
+            <tbody id="bkTableBody"></tbody>
+          </table>
+        </div>
+        <div class="pagination" id="bkPagination"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL DETAIL -->
+<div class="modal-overlay" id="bkDetailModal">
+  <div class="modal" style="max-width:520px" id="bkDetailContent"></div>
+</div>
+
+<div id="toastContainer" class="toast-container"></div>
+<script src="admin-shared.js"></script>
+<script src="admin.js"></script>
+<script>
+const BookingAdmin = {
+  data:[], filtered_data:[], page:1, perPage:15,
+
+  init() { this.load(); this.renderStats(); this.filter(); },
+
+  load() {
+    this.data = WJData.getBookings().sort((a,b)=>new Date(b.createdAt)-new Date(a.createdAt));
+  },
+
+  renderStats() {
+    const d=this.data;
+    const set=(id,v)=>{ const el=document.getElementById(id); if(el) el.textContent=v; };
+    set('bkTotal',d.length);
+    set('bkPending',d.filter(b=>b.status==='pending').length);
+    set('bkConfirmed',d.filter(b=>b.status==='confirmed').length);
+    set('bkCompleted',d.filter(b=>b.status==='completed').length);
+    set('bkCancelled',d.filter(b=>b.status==='cancelled').length);
+    const rev=d.filter(b=>b.status!=='cancelled').reduce((s,b)=>s+(b.total||0),0);
+    set('bkRevenue', fmt.currency(rev));
+  },
+
+  filter() {
+    const q=document.getElementById('searchBk')?.value.toLowerCase()||'';
+    const status=document.getElementById('filterBkStatus')?.value||'all';
+    this.filtered_data=this.data.filter(b=>
+      (!q || b.id.toLowerCase().includes(q) || (b.contactName||'').toLowerCase().includes(q) || (b.namaDestinasi||'').toLowerCase().includes(q)) &&
+      (status==='all'||b.status===status)
+    );
+    this.page=1; this.render();
+  },
+
+  render() {
+    const tbody=document.getElementById('bkTableBody'); if(!tbody) return;
+    const start=(this.page-1)*this.perPage;
+    const paged=this.filtered_data.slice(start,start+this.perPage);
+
+    if(!paged.length) {
+      tbody.innerHTML=`<tr><td colspan="9" style="text-align:center;padding:40px;color:var(--text-muted)">Tidak ada booking</td></tr>`; return;
+    }
+
+    const payIcons={transfer_bank:'🏦',gopay:'💚',ovo:'💜',qris:'📱',cod:'💵',cicilan:'📊'};
+
+    tbody.innerHTML=paged.map(b=>`
+      <tr>
+        <td><span style="font-family:monospace;font-size:12px;font-weight:700;color:var(--primary);background:var(--primary-light);padding:3px 8px;border-radius:6px">${b.id}</span></td>
+        <td>
+          <div style="font-weight:600;font-size:13px">${b.contactName||'-'}</div>
+          <div style="font-size:11px;color:var(--text-muted)">${b.contactPhone||''}</div>
+        </td>
+        <td>
+          <div style="font-weight:600;font-size:13px">${b.namaDestinasi||'-'}</div>
+          <div style="font-size:11px;color:var(--text-muted)">${b.lokasi||''}</div>
+        </td>
+        <td style="font-size:12px">${fmt.date(b.tanggal)}</td>
+        <td style="text-align:center;font-weight:700">${b.pax||1}</td>
+        <td style="font-weight:700;color:var(--primary)">${fmt.currency(b.total||0)}</td>
+        <td style="font-size:12px">${payIcons[b.payment]||'💳'} ${b.payment||'-'}</td>
+        <td>${fmt.statusBadge(b.status)}</td>
+        <td>
+          <div style="display:flex;gap:4px;flex-wrap:wrap">
+            <button class="btn btn-secondary btn-sm" onclick="BookingAdmin.detail('${b.id}')">📋</button>
+            ${b.status==='pending'?`<button class="btn btn-sm" onclick="BookingAdmin.confirm('${b.id}')" style="background:#dcfce7;color:#15803d">✅</button>`:''}
+            ${b.status==='confirmed'?`<button class="btn btn-sm" onclick="BookingAdmin.complete('${b.id}')" style="background:#dbeafe;color:#1d4ed8">🏁</button>`:''}
+            ${['pending','confirmed'].includes(b.status)?`<button class="btn btn-sm" onclick="BookingAdmin.cancel('${b.id}')" style="background:#fee2e2;color:#dc2626">❌</button>`:''}
+          </div>
+        </td>
+      </tr>`).join('');
+
+    const pages=Math.ceil(this.filtered_data.length/this.perPage);
+    const pg=document.getElementById('bkPagination');
+    if(pg) pg.innerHTML=pages>1?Array.from({length:pages},(_,i)=>
+      `<button onclick="BookingAdmin.page=${i+1};BookingAdmin.render()" class="page-btn ${this.page===i+1?'active':''}">${i+1}</button>`).join(''):'';
+  },
+
+  detail(id) {
+    const b=this.data.find(x=>x.id===id); if(!b) return;
+    document.getElementById('bkDetailContent').innerHTML=`
+      <div class="modal-header">
+        <div class="modal-title">📋 Detail Booking</div>
+        <button class="modal-close" onclick="AdminModal.close('bkDetailModal')">×</button>
+      </div>
+      <div class="modal-body">
+        <div style="background:var(--primary-light);border-radius:10px;padding:14px;margin-bottom:16px">
+          <div style="font-size:11px;color:var(--text-muted);font-weight:700;text-transform:uppercase;margin-bottom:4px">Kode Booking</div>
+          <div style="font-size:22px;font-weight:800;color:var(--primary);font-family:monospace">${b.id}</div>
+          <div style="margin-top:4px">${fmt.statusBadge(b.status)}</div>
+        </div>
+        ${[
+          ['🗺️ Destinasi', b.namaDestinasi||'-'],
+          ['📍 Lokasi', b.lokasi||'-'],
+          ['📅 Tanggal Berangkat', fmt.date(b.tanggal)],
+          ['👥 Peserta', `${b.pax} Orang`],
+          ['👤 Nama Kontak', b.contactName||'-'],
+          ['📱 WhatsApp', b.contactPhone||'-'],
+          ['💳 Metode Bayar', b.payment||'-'],
+          ['💰 Harga/orang', fmt.currency(b.harga||0)],
+          ['💰 Total', fmt.currency(b.total||0)],
+          ['📝 Catatan', b.notes||'-'],
+          ['🕐 Dipesan', fmt.datetime(b.createdAt)],
+        ].map(([k,v])=>`
+          <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px dashed var(--border);font-size:13px">
+            <span style="color:var(--text-muted)">${k}</span>
+            <span style="font-weight:600;color:var(--text-primary);text-align:right;max-width:60%">${v}</span>
+          </div>`).join('')}
+        <div style="display:flex;gap:8px;margin-top:16px;flex-wrap:wrap">
+          ${b.status==='pending'?`<button class="btn btn-primary btn-sm" onclick="BookingAdmin.confirm('${b.id}');AdminModal.close('bkDetailModal')">✅ Konfirmasi</button>`:''}
+          ${b.status==='confirmed'?`<button class="btn btn-primary btn-sm" onclick="BookingAdmin.complete('${b.id}');AdminModal.close('bkDetailModal')" style="background:linear-gradient(135deg,#15803d,#166534)">🏁 Selesai</button>`:''}
+          ${['pending','confirmed'].includes(b.status)?`<button class="btn btn-sm" onclick="BookingAdmin.cancel('${b.id}');AdminModal.close('bkDetailModal')" style="background:#fee2e2;color:#dc2626;border:1px solid #fecaca">❌ Batalkan</button>`:''}
+        </div>
+      </div>`;
+    AdminModal.open('bkDetailModal');
+  },
+
+  confirm(id) {
+    WJData.updateBooking(id,{status:'confirmed'});
+    AdminToast.show('✅ Booking dikonfirmasi!','success');
+    this.load(); this.renderStats(); this.filter();
+  },
+  complete(id) {
+    WJData.updateBooking(id,{status:'completed'});
+    AdminToast.show('🏁 Booking selesai!','success');
+    this.load(); this.renderStats(); this.filter();
+  },
+  cancel(id) {
+    if(!confirm('Batalkan booking ini?')) return;
+    WJData.updateBooking(id,{status:'cancelled'});
+    AdminToast.show('❌ Booking dibatalkan','info');
+    this.load(); this.renderStats(); this.filter();
+  },
+
+  exportCSV() {
+    const rows=[['Kode','Destinasi','Kontak','Phone','Tanggal','Peserta','Total','Payment','Status']];
+    this.filtered_data.forEach(b=>rows.push([b.id,b.namaDestinasi,b.contactName,b.contactPhone,b.tanggal,b.pax,b.total,b.payment,b.status]));
+    const csv=rows.map(r=>r.join(',')).join('\n');
+    const a=document.createElement('a');
+    a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);
+    a.download=`bookings-${Date.now()}.csv`; a.click();
+    AdminToast.show('📥 Export CSV berhasil!','success');
+  }
+};
+document.addEventListener('DOMContentLoaded',()=>{
+  adminPageInit({page:'bookings',breadcrumb:'Booking',init:()=>BookingAdmin.init()});
+});
+</script>
+</body>
+</html>

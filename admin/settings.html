@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="light">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pengaturan - Admin Wisata Jomokerto</title>
+  <link rel="stylesheet" href="../css/admin.css">
+  <style>
+    .toggle-wrap{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border)}
+    .toggle-wrap:last-child{border-bottom:none}
+    .toggle-label{font-size:14px;font-weight:600;color:var(--text-primary)}
+    .toggle-sub{font-size:12px;color:var(--text-muted);margin-top:2px}
+    .toggle-btn{position:relative;width:44px;height:24px;border-radius:99px;border:none;cursor:pointer;transition:.3s;flex-shrink:0}
+    .toggle-btn.on{background:var(--primary)}
+    .toggle-btn.off{background:var(--border)}
+    .toggle-btn::after{content:'';position:absolute;top:3px;width:18px;height:18px;border-radius:50%;background:white;transition:.3s;box-shadow:0 1px 3px rgba(0,0,0,.2)}
+    .toggle-btn.on::after{left:23px}
+    .toggle-btn.off::after{left:3px}
+  </style>
+</head>
+<body>
+<div id="adminPanel" style="display:none;width:100%">
+  <div class="main" id="mainContent">
+    <div class="page-content">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px">
+        <div>
+          <h1 style="font-size:24px;font-weight:800;color:var(--text-primary)">⚙️ Pengaturan Website</h1>
+          <p style="color:var(--text-muted);font-size:14px">Konfigurasi website Wisata Jomokerto</p>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+
+        <!-- Informasi Website -->
+        <div class="card">
+          <div class="card-header"><div class="card-title">🌐 Informasi Website</div></div>
+          <div style="padding:20px">
+            <div class="form-group">
+              <label class="form-label">Nama Website</label>
+              <input type="text" id="sName" class="form-input" placeholder="Wisata Jomokerto">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Tagline</label>
+              <input type="text" id="sTagline" class="form-input" placeholder="Jelajahi Dunia Bersamamu">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Email</label>
+              <input type="email" id="sEmail" class="form-input" placeholder="info@wisatajomokerto.com">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Telepon</label>
+              <input type="text" id="sPhone" class="form-input" placeholder="+62 321 123456">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Alamat</label>
+              <input type="text" id="sAddress" class="form-input" placeholder="Jl. Majapahit No.1, Mojokerto">
+            </div>
+            <button class="btn btn-primary" style="width:100%" onclick="SET.save('info')">💾 Simpan Informasi</button>
+          </div>
+        </div>
+
+        <!-- Kontak & Sosmed -->
+        <div class="card">
+          <div class="card-header"><div class="card-title">📱 Kontak & Sosial Media</div></div>
+          <div style="padding:20px">
+            <div class="form-group">
+              <label class="form-label">Nomor WhatsApp <span style="font-size:11px;color:var(--text-muted)">(tanpa +)</span></label>
+              <div style="display:flex;gap:8px">
+                <input type="text" id="sWA" class="form-input" placeholder="6282112345678" style="flex:1">
+                <button class="btn btn-secondary" onclick="SET.testWA()" style="white-space:nowrap">📲 Test</button>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Instagram</label>
+              <input type="text" id="sIG" class="form-input" placeholder="@wisatajomokerto">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Facebook</label>
+              <input type="text" id="sFB" class="form-input" placeholder="wisatajomokerto">
+            </div>
+            <button class="btn btn-primary" style="width:100%" onclick="SET.save('sosmed')">💾 Simpan Kontak</button>
+          </div>
+        </div>
+
+        <!-- Pengaturan Booking -->
+        <div class="card">
+          <div class="card-header"><div class="card-title">🎫 Pengaturan Booking</div></div>
+          <div style="padding:20px">
+            <div class="form-group">
+              <label class="form-label">Maks. Peserta per Booking</label>
+              <input type="number" id="sMaxPax" class="form-input" placeholder="20" min="1">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Biaya Admin (Rp)</label>
+              <input type="number" id="sBookingFee" class="form-input" placeholder="0" min="0">
+            </div>
+            <div class="toggle-wrap">
+              <div><div class="toggle-label">Perlu Persetujuan Admin</div><div class="toggle-sub">Booking berstatus pending sampai dikonfirmasi</div></div>
+              <button class="toggle-btn" id="tgApproval" onclick="SET.toggle('requireApproval')"></button>
+            </div>
+            <div class="toggle-wrap">
+              <div><div class="toggle-label">Izinkan Registrasi User</div><div class="toggle-sub">User bisa buat akun baru</div></div>
+              <button class="toggle-btn" id="tgRegister" onclick="SET.toggle('allowRegister')"></button>
+            </div>
+            <button class="btn btn-primary" style="width:100%;margin-top:14px" onclick="SET.save('booking')">💾 Simpan Pengaturan</button>
+          </div>
+        </div>
+
+        <!-- Sistem -->
+        <div class="card">
+          <div class="card-header"><div class="card-title">🔧 Sistem</div></div>
+          <div style="padding:20px">
+            <div class="toggle-wrap">
+              <div><div class="toggle-label">Mode Maintenance</div><div class="toggle-sub">Website tidak bisa diakses user</div></div>
+              <button class="toggle-btn" id="tgMaintenance" onclick="SET.toggle('maintenanceMode')"></button>
+            </div>
+            <div style="margin-top:16px;padding:14px;background:var(--bg);border-radius:10px;border:1px solid var(--border)">
+              <div style="font-size:12px;font-weight:700;color:var(--text-muted);text-transform:uppercase;margin-bottom:8px">Info Data</div>
+              <div id="sysInfo" style="font-size:13px;color:var(--text-secondary);line-height:1.8"></div>
+            </div>
+            <div style="display:flex;gap:8px;margin-top:14px">
+              <button class="btn btn-secondary" style="flex:1" onclick="SET.exportSettings()">📤 Export</button>
+              <button class="btn btn-sm" style="background:#fee2e2;color:#dc2626;border:1px solid #fecaca;flex:1;border-radius:8px;cursor:pointer;font-family:var(--font);font-size:13px" onclick="SET.resetAll()">🔄 Reset Data</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="toastContainer" class="toast-container"></div>
+<script src="admin-shared.js"></script>
+<script src="admin.js"></script>
+<script>
+const SET = {
+  cfg:{},
+
+  init() {
+    this.cfg = WJData.getSettings();
+    this.load();
+    this.renderInfo();
+  },
+
+  load() {
+    const c=this.cfg;
+    const v=(id,val)=>{const e=document.getElementById(id);if(e)e.value=val||'';};
+    v('sName',c.siteName); v('sTagline',c.siteTagline); v('sEmail',c.siteEmail);
+    v('sPhone',c.sitePhone); v('sAddress',c.siteAddress);
+    v('sWA',c.whatsapp); v('sIG',c.instagram); v('sFB',c.facebook);
+    v('sMaxPax',c.maxPeserta); v('sBookingFee',c.bookingFee);
+    this.setToggle('tgApproval',c.requireApproval);
+    this.setToggle('tgRegister',c.allowRegister!==false);
+    this.setToggle('tgMaintenance',c.maintenanceMode);
+  },
+
+  setToggle(id,val) {
+    const el=document.getElementById(id); if(!el) return;
+    el.className='toggle-btn '+(val?'on':'off');
+  },
+
+  toggle(key) {
+    this.cfg[key]=!this.cfg[key];
+    const map={requireApproval:'tgApproval',allowRegister:'tgRegister',maintenanceMode:'tgMaintenance'};
+    if(map[key]) this.setToggle(map[key],this.cfg[key]);
+    WJData.saveSettings(this.cfg);
+    AdminToast.show(`${key}: ${this.cfg[key]?'Aktif':'Nonaktif'}`,'info');
+  },
+
+  save(section) {
+    if(section==='info') {
+      this.cfg.siteName=document.getElementById('sName')?.value||this.cfg.siteName;
+      this.cfg.siteTagline=document.getElementById('sTagline')?.value||this.cfg.siteTagline;
+      this.cfg.siteEmail=document.getElementById('sEmail')?.value||this.cfg.siteEmail;
+      this.cfg.sitePhone=document.getElementById('sPhone')?.value||this.cfg.sitePhone;
+      this.cfg.siteAddress=document.getElementById('sAddress')?.value||this.cfg.siteAddress;
+    } else if(section==='sosmed') {
+      this.cfg.whatsapp=document.getElementById('sWA')?.value||this.cfg.whatsapp;
+      this.cfg.instagram=document.getElementById('sIG')?.value||this.cfg.instagram;
+      this.cfg.facebook=document.getElementById('sFB')?.value||this.cfg.facebook;
+    } else if(section==='booking') {
+      this.cfg.maxPeserta=parseInt(document.getElementById('sMaxPax')?.value)||20;
+      this.cfg.bookingFee=parseInt(document.getElementById('sBookingFee')?.value)||0;
+    }
+    WJData.saveSettings(this.cfg);
+    AdminToast.show('✅ Pengaturan disimpan!','success');
+  },
+
+  testWA() {
+    const wa=document.getElementById('sWA')?.value||this.cfg.whatsapp;
+    if(wa) window.open(`https://wa.me/${wa}?text=Halo%20Wisata%20Jomokerto!`,'_blank');
+    else AdminToast.show('Masukkan nomor WA dulu!','warning');
+  },
+
+  renderInfo() {
+    const el=document.getElementById('sysInfo'); if(!el) return;
+    el.innerHTML=`
+      📍 Destinasi: <strong>${WJData.getDestinations().length}</strong><br>
+      🎫 Total Booking: <strong>${WJData.getBookings().length}</strong><br>
+      👥 Total Users: <strong>${WJData.getUsers().length}</strong><br>
+      🎁 Paket Wisata: <strong>${WJData.getPackages().length}</strong><br>
+      📸 Foto Galeri: <strong>${WJData.getGallery().length}</strong>`;
+  },
+
+  exportSettings() {
+    const data=WJData.getSettings();
+    const a=document.createElement('a');
+    a.href='data:application/json;charset=utf-8,'+encodeURIComponent(JSON.stringify(data,null,2));
+    a.download='wj-settings.json'; a.click();
+    AdminToast.show('📤 Settings diekspor!','success');
+  },
+
+  resetAll() {
+    if(!confirm('⚠️ Reset SEMUA data admin?\n\nIni akan menghapus:\n- Semua destinasi custom\n- Edit destinasi\n- Transport custom\n- Paket custom\n- Slider custom\n- Galeri custom\n\nBooking dan Users TIDAK dihapus.\n\nLanjutkan?')) return;
+    ['wj-dest-custom','wj-dest-deleted','wj-dest-edited','wj-transport-custom','wj-transport-deleted','wj-transport-edited','wj-pkg-custom','wj-pkg-deleted','wj-pkg-edited','wj-sliders','wj-gallery','wj-destinations','wj-transport','wj-packages'].forEach(k=>localStorage.removeItem(k));
+    WJData._sync ? WJData._sync() : WJData.syncAll();
+    AdminToast.show('🔄 Data direset ke default!','info');
+    this.renderInfo();
+  }
+};
+document.addEventListener('DOMContentLoaded',()=>{
+  adminPageInit({page:'settings',breadcrumb:'Pengaturan',init:()=>SET.init()});
+});
+</script>
+</body></html>

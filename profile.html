@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Profil Saya - Wisata Jomokerto</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✈️</text></svg>">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/pages.css">
+</head>
+<body>
+
+<!-- LOADING -->
+<div id="loading-screen">
+  <div class="loader-logo">
+    <div class="logo-icon">✈️</div>
+    <div class="logo-text">Wisata Jomokerto</div>
+  </div>
+  <div class="loader-bar"><div class="loader-fill"></div></div>
+  <div class="loader-text">Memuat profil Anda...</div>
+</div>
+
+<!-- NAVBAR -->
+<nav class="navbar" id="navbar">
+  <div class="nav-container">
+    <a href="index.html" class="nav-logo">
+      <div class="logo-icon">✈️</div>
+      <div>
+        <div class="logo-name">Wisata Jomokerto</div>
+        <div class="logo-tagline">Jelajahi Dunia Bersamamu</div>
+      </div>
+    </a>
+    <ul class="nav-menu">
+      <li><a href="index.html" class="nav-link">🏠 Beranda</a></li>
+      <li><a href="index.html#destinasiSection" class="nav-link">🗺️ Destinasi</a></li>
+      <li><a href="bookings.html" class="nav-link">🎫 Booking Saya</a></li>
+      <li><a href="profile.html" class="nav-link active">👤 Profil</a></li>
+    </ul>
+    <div class="nav-right" id="navRight">
+      <button class="btn-theme" id="themeBtn">🌙</button>
+    </div>
+    <div class="hamburger" id="hamburger"><span></span><span></span><span></span></div>
+  </div>
+</nav>
+
+<!-- AUTH WALL -->
+<div id="authWall" style="display:none; min-height:100vh; padding-top:var(--nav-height); display:none; align-items:center; justify-content:center; background:var(--bg)">
+  <div style="text-align:center; padding:60px 24px; max-width:400px; margin:auto">
+    <div style="font-size:72px; margin-bottom:20px">🔐</div>
+    <h2 style="font-size:24px; font-weight:800; color:var(--text-primary); margin-bottom:10px">Login Diperlukan</h2>
+    <p style="color:var(--text-secondary); margin-bottom:28px">Silakan login terlebih dahulu untuk mengakses profil Anda</p>
+    <button onclick="window.location.href='index.html'" style="padding:13px 32px; background:linear-gradient(135deg,var(--primary),var(--primary-dark)); color:white; border-radius:var(--radius); border:none; font-size:15px; font-weight:700; cursor:pointer; font-family:var(--font)">
+      ← Kembali & Login
+    </button>
+  </div>
+</div>
+
+<!-- MAIN CONTENT -->
+<main id="profileMain" style="display:none">
+  <!-- COVER & HERO -->
+  <div class="profile-cover">
+    <div class="cover-bg" id="coverBg"></div>
+    <div class="cover-overlay"></div>
+    <div class="container" style="position:relative;z-index:2">
+      <div class="profile-hero-row">
+        <!-- Avatar -->
+        <div class="profile-avatar-wrap">
+          <div class="profile-avatar-ring">
+            <div class="profile-avatar-big" id="profileAvatarBig">A</div>
+          </div>
+          <label class="avatar-edit-btn" title="Ganti foto profil">
+            📷
+            <input type="file" accept="image/*" onchange="ProfilePage.changeAvatar(this)" style="display:none">
+          </label>
+        </div>
+        <!-- Info -->
+        <div class="profile-hero-info">
+          <div class="profile-hero-name" id="profileHeroName">Loading...</div>
+          <div class="profile-hero-email" id="profileHeroEmail">-</div>
+          <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:10px">
+            <div class="profile-hero-badge" id="profileHeroBadge">👤 User</div>
+            <div class="profile-hero-badge" id="profileHeroSince" style="background:rgba(255,255,255,0.12)">📅 Bergabung 2024</div>
+          </div>
+        </div>
+        <!-- Stats -->
+        <div class="profile-hero-stats" id="profileHeroStats">
+          <div class="phero-stat">
+            <div class="phero-num" id="statBooking">0</div>
+            <div class="phero-label">Booking</div>
+          </div>
+          <div class="phero-divider"></div>
+          <div class="phero-stat">
+            <div class="phero-num" id="statWishlist">0</div>
+            <div class="phero-label">Wishlist</div>
+          </div>
+          <div class="phero-divider"></div>
+          <div class="phero-stat">
+            <div class="phero-num" id="statReview">0</div>
+            <div class="phero-label">Ulasan</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PROFILE BODY -->
+  <div class="container" style="padding-top:32px; padding-bottom:60px">
+    <div class="profile-layout">
+
+      <!-- SIDEBAR -->
+      <aside class="profile-sidebar">
+        <div class="psidebar-card">
+          <nav class="psidebar-nav">
+            <a href="#" class="psidebar-link active" data-tab="info">👤 Informasi Pribadi</a>
+            <a href="#" class="psidebar-link" data-tab="security">🔒 Keamanan Akun</a>
+            <a href="#" class="psidebar-link" data-tab="preferences">⚙️ Preferensi</a>
+            <a href="#" class="psidebar-link" data-tab="notifications">🔔 Notifikasi</a>
+            <div style="height:1px;background:var(--border);margin:8px 0"></div>
+            <a href="bookings.html" class="psidebar-link">🎫 Booking Saya</a>
+            <a href="#" class="psidebar-link" onclick="ProfilePage.goWishlist()">❤️ Wishlist Saya</a>
+            <div style="height:1px;background:var(--border);margin:8px 0"></div>
+            <button class="psidebar-link logout-btn" onclick="ProfilePage.logout()">🚪 Keluar</button>
+          </nav>
+        </div>
+
+        <!-- DB Sync Info -->
+        <div class="psidebar-card" style="margin-top:16px">
+          <div style="font-size:12px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:12px">🗄️ Database Sync</div>
+          <div style="font-size:12px;color:var(--text-secondary);display:flex;flex-direction:column;gap:6px">
+            <div style="display:flex;justify-content:space-between;align-items:center">
+              <span>Status</span>
+              <span style="background:#dcfce7;color:#15803d;padding:2px 8px;border-radius:99px;font-size:10px;font-weight:700">✅ Aktif</span>
+            </div>
+            <div style="display:flex;justify-content:space-between"><span>Tabel</span><span style="font-weight:600;color:var(--primary)">users</span></div>
+            <div style="display:flex;justify-content:space-between"><span>Storage</span><span style="font-weight:600">localStorage</span></div>
+            <div style="display:flex;justify-content:space-between"><span>Sinkron</span><span style="color:var(--accent);font-weight:600" id="lastSync">Baru saja</span></div>
+          </div>
+        </div>
+      </aside>
+
+      <!-- MAIN TABS -->
+      <div class="profile-content">
+
+        <!-- TAB: Informasi Pribadi -->
+        <div class="profile-tab active" id="tab-info">
+          <div class="pcard">
+            <div class="pcard-header">
+              <div class="pcard-title">👤 Informasi Pribadi</div>
+              <button class="btn-edit-toggle" id="editToggleBtn" onclick="ProfilePage.toggleEdit()">✏️ Edit Profil</button>
+            </div>
+            <div class="pcard-body">
+              <!-- View Mode -->
+              <div id="viewMode">
+                <div class="info-grid">
+                  <div class="info-item">
+                    <div class="info-label">Nama Lengkap</div>
+                    <div class="info-value" id="viewName">-</div>
+                  </div>
+                  <div class="info-item">
+                    <div class="info-label">Email</div>
+                    <div class="info-value" id="viewEmail">-</div>
+                  </div>
+                  <div class="info-item">
+                    <div class="info-label">Nomor Telepon</div>
+                    <div class="info-value" id="viewPhone">Belum diisi</div>
+                  </div>
+                  <div class="info-item">
+                    <div class="info-label">Tanggal Lahir</div>
+                    <div class="info-value" id="viewBirthdate">Belum diisi</div>
+                  </div>
+                  <div class="info-item">
+                    <div class="info-label">Jenis Kelamin</div>
+                    <div class="info-value" id="viewGender">Belum diisi</div>
+                  </div>
+                  <div class="info-item">
+                    <div class="info-label">Kota</div>
+                    <div class="info-value" id="viewCity">Belum diisi</div>
+                  </div>
+                  <div class="info-item info-span2">
+                    <div class="info-label">Alamat</div>
+                    <div class="info-value" id="viewAddress">Belum diisi</div>
+                  </div>
+                  <div class="info-item info-span2">
+                    <div class="info-label">Bio / Tentang Saya</div>
+                    <div class="info-value" id="viewBio" style="font-style:italic;color:var(--text-secondary)">Belum ada bio</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Edit Mode -->
+              <div id="editMode" style="display:none">
+                <form id="editProfileForm">
+                  <div class="form-grid-profile">
+                    <div class="form-group">
+                      <label class="form-label-p">Nama Lengkap <span style="color:red">*</span></label>
+                      <input type="text" class="form-input-p" id="editName" required placeholder="Nama lengkap Anda">
+                    </div>
+                    <div class="form-group">
+                      <label class="form-label-p">Email <span style="color:red">*</span></label>
+                      <input type="email" class="form-input-p" id="editEmail" required placeholder="email@contoh.com">
+                    </div>
+                    <div class="form-group">
+                      <label class="form-label-p">Nomor Telepon</label>
+                      <input type="tel" class="form-input-p" id="editPhone" placeholder="+62 812 3456 7890">
+                    </div>
+                    <div class="form-group">
+                      <label class="form-label-p">Tanggal Lahir</label>
+                      <input type="date" class="form-input-p" id="editBirthdate">
+                    </div>
+                    <div class="form-group">
+                      <label class="form-label-p">Jenis Kelamin</label>
+                      <select class="form-input-p" id="editGender">
+                        <option value="">-- Pilih --</option>
+                        <option value="Laki-laki">Laki-laki</option>
+                        <option value="Perempuan">Perempuan</option>
+                        <option value="Tidak ingin menyebutkan">Tidak ingin menyebutkan</option>
+                      </select>
+                    </div>
+                    <div class="form-group">
+                      <label class="form-label-p">Kota</label>
+                      <input type="text" class="form-input-p" id="editCity" placeholder="Mojokerto">
+                    </div>
+                    <div class="form-group form-span2-p">
+                      <label class="form-label-p">Alamat Lengkap</label>
+                      <input type="text" class="form-input-p" id="editAddress" placeholder="Jl. Majapahit No.1, Mojokerto">
+                    </div>
+                    <div class="form-group form-span2-p">
+                      <label class="form-label-p">Bio / Tentang Saya</label>
+                      <textarea class="form-input-p" id="editBio" rows="3" placeholder="Ceritakan sedikit tentang diri Anda..."></textarea>
+                    </div>
+                  </div>
+                  <div style="display:flex;gap:12px;margin-top:20px">
+                    <button type="submit" class="btn-save-p">💾 Simpan Perubahan</button>
+                    <button type="button" class="btn-cancel-p" onclick="ProfilePage.toggleEdit()">Batal</button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+
+          <!-- Passport / Travel Docs -->
+          <div class="pcard" style="margin-top:20px">
+            <div class="pcard-header">
+              <div class="pcard-title">📄 Dokumen Perjalanan</div>
+              <button class="btn-edit-toggle" onclick="ProfilePage.editDocs()">✏️ Edit</button>
+            </div>
+            <div class="pcard-body">
+              <div class="info-grid">
+                <div class="info-item">
+                  <div class="info-label">No. KTP / NIK</div>
+                  <div class="info-value" id="viewNik">Belum diisi</div>
+                </div>
+                <div class="info-item">
+                  <div class="info-label">No. Paspor</div>
+                  <div class="info-value" id="viewPassport">Belum diisi</div>
+                </div>
+                <div class="info-item">
+                  <div class="info-label">Masa Berlaku Paspor</div>
+                  <div class="info-value" id="viewPassportExp">Belum diisi</div>
+                </div>
+                <div class="info-item">
+                  <div class="info-label">Kewarganegaraan</div>
+                  <div class="info-value" id="viewNationality">Indonesia</div>
+                </div>
+              </div>
+              <div id="docsEditForm" style="display:none;margin-top:16px">
+                <div class="form-grid-profile">
+                  <div class="form-group">
+                    <label class="form-label-p">No. KTP / NIK</label>
+                    <input type="text" class="form-input-p" id="editNik" placeholder="16 digit NIK" maxlength="16">
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label-p">No. Paspor</label>
+                    <input type="text" class="form-input-p" id="editPassport" placeholder="Nomor paspor">
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label-p">Masa Berlaku Paspor</label>
+                    <input type="date" class="form-input-p" id="editPassportExp">
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label-p">Kewarganegaraan</label>
+                    <input type="text" class="form-input-p" id="editNationality" value="Indonesia">
+                  </div>
+                </div>
+                <div style="display:flex;gap:12px;margin-top:16px">
+                  <button class="btn-save-p" onclick="ProfilePage.saveDocs()">💾 Simpan</button>
+                  <button class="btn-cancel-p" onclick="ProfilePage.editDocs()">Batal</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- TAB: Keamanan -->
+        <div class="profile-tab" id="tab-security" style="display:none">
+          <div class="pcard">
+            <div class="pcard-header">
+              <div class="pcard-title">🔒 Keamanan Akun</div>
+            </div>
+            <div class="pcard-body">
+              <!-- Change Password -->
+              <div class="security-section">
+                <div class="security-icon">🔑</div>
+                <div style="flex:1">
+                  <div style="font-weight:700;color:var(--text-primary);margin-bottom:4px">Ubah Password</div>
+                  <div style="font-size:13px;color:var(--text-muted)">Pastikan password baru minimal 6 karakter dan berbeda dari yang lama</div>
+                </div>
+                <button class="btn-edit-toggle" onclick="ProfilePage.togglePassForm()">Ubah →</button>
+              </div>
+              <div id="passForm" style="display:none;margin:16px 0;padding:20px;background:var(--bg);border-radius:var(--radius);border:1px solid var(--border)">
+                <div class="form-grid-profile">
+                  <div class="form-group form-span2-p">
+                    <label class="form-label-p">Password Lama <span style="color:red">*</span></label>
+                    <input type="password" class="form-input-p" id="oldPass" placeholder="••••••••">
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label-p">Password Baru <span style="color:red">*</span></label>
+                    <input type="password" class="form-input-p" id="newPass" placeholder="Min. 6 karakter">
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label-p">Konfirmasi Password Baru</label>
+                    <input type="password" class="form-input-p" id="confPass" placeholder="Ulangi password baru">
+                  </div>
+                </div>
+                <div style="display:flex;gap:12px;margin-top:16px">
+                  <button class="btn-save-p" onclick="ProfilePage.changePassword()">🔒 Simpan Password</button>
+                  <button class="btn-cancel-p" onclick="ProfilePage.togglePassForm()">Batal</button>
+                </div>
+              </div>
+
+              <div style="height:1px;background:var(--border);margin:20px 0"></div>
+
+              <!-- Two Factor -->
+              <div class="security-section">
+                <div class="security-icon">📱</div>
+                <div style="flex:1">
+                  <div style="font-weight:700;color:var(--text-primary);margin-bottom:4px">Verifikasi 2 Langkah</div>
+                  <div style="font-size:13px;color:var(--text-muted)">Tambahkan lapisan keamanan ekstra untuk akun Anda</div>
+                </div>
+                <label class="toggle-switch">
+                  <input type="checkbox" id="toggle2FA" onchange="ProfilePage.toggle2FA(this)">
+                  <span class="toggle-slider"></span>
+                </label>
+              </div>
+
+              <div style="height:1px;background:var(--border);margin:20px 0"></div>
+
+              <!-- Login History -->
+              <div style="margin-bottom:12px">
+                <div style="font-weight:700;color:var(--text-primary);margin-bottom:16px">🕐 Riwayat Login</div>
+                <div class="login-history" id="loginHistory"></div>
+              </div>
+
+              <div style="height:1px;background:var(--border);margin:20px 0"></div>
+
+              <!-- Danger Zone -->
+              <div style="background:#fff5f5;border:1px solid #fecaca;border-radius:var(--radius);padding:20px">
+                <div style="font-weight:700;color:#dc2626;margin-bottom:8px">⚠️ Zona Berbahaya</div>
+                <p style="font-size:13px;color:#7f1d1d;margin-bottom:16px">Menghapus akun bersifat permanen dan tidak dapat dibatalkan. Semua data Anda akan terhapus.</p>
+                <button onclick="ProfilePage.deleteAccount()" style="padding:10px 20px;background:#fee2e2;color:#dc2626;border:1px solid #fecaca;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font)">
+                  🗑️ Hapus Akun Saya
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- TAB: Preferensi -->
+        <div class="profile-tab" id="tab-preferences" style="display:none">
+          <div class="pcard">
+            <div class="pcard-header">
+              <div class="pcard-title">⚙️ Preferensi Wisata</div>
+            </div>
+            <div class="pcard-body">
+              <div style="margin-bottom:20px">
+                <div style="font-weight:700;color:var(--text-primary);margin-bottom:12px">Kategori Wisata Favorit</div>
+                <div class="pref-chips" id="prefCategories">
+                  <label class="pref-chip"><input type="checkbox" value="pantai"> 🏖️ Pantai</label>
+                  <label class="pref-chip"><input type="checkbox" value="gunung"> ⛰️ Gunung</label>
+                  <label class="pref-chip"><input type="checkbox" value="budaya"> 🏛️ Budaya</label>
+                  <label class="pref-chip"><input type="checkbox" value="kota"> 🏙️ Kota</label>
+                  <label class="pref-chip"><input type="checkbox" value="alam"> 🌿 Alam</label>
+                  <label class="pref-chip"><input type="checkbox" value="kuliner"> 🍜 Kuliner</label>
+                  <label class="pref-chip"><input type="checkbox" value="religi"> 🕌 Religi</label>
+                  <label class="pref-chip"><input type="checkbox" value="hiburan"> 🎡 Hiburan</label>
+                </div>
+              </div>
+
+              <div style="height:1px;background:var(--border);margin:20px 0"></div>
+              <div style="margin-bottom:20px">
+                <div style="font-weight:700;color:var(--text-primary);margin-bottom:12px">Tujuan Wisata</div>
+                <div class="pref-chips">
+                  <label class="pref-chip"><input type="checkbox" name="tujuan" value="dalam"> 🇮🇩 Dalam Negeri</label>
+                  <label class="pref-chip"><input type="checkbox" name="tujuan" value="luar"> 🌍 Luar Negeri</label>
+                </div>
+              </div>
+
+              <div style="height:1px;background:var(--border);margin:20px 0"></div>
+              <div style="margin-bottom:20px">
+                <div style="font-weight:700;color:var(--text-primary);margin-bottom:12px">Budget Perjalanan</div>
+                <div class="pref-chips">
+                  <label class="pref-chip"><input type="radio" name="budget" value="hemat"> 💰 Hemat (&lt; 1Jt)</label>
+                  <label class="pref-chip"><input type="radio" name="budget" value="medium"> 💳 Menengah (1-5Jt)</label>
+                  <label class="pref-chip"><input type="radio" name="budget" value="premium"> 💎 Premium (&gt; 5Jt)</label>
+                </div>
+              </div>
+
+              <div style="height:1px;background:var(--border);margin:20px 0"></div>
+              <div style="margin-bottom:20px">
+                <div style="font-weight:700;color:var(--text-primary);margin-bottom:12px">Tampilan</div>
+                <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 0">
+                  <div>
+                    <div style="font-size:14px;font-weight:600;color:var(--text-primary)">🌙 Dark Mode</div>
+                    <div style="font-size:12px;color:var(--text-muted)">Nyamankan mata Anda di malam hari</div>
+                  </div>
+                  <label class="toggle-switch">
+                    <input type="checkbox" id="darkModeToggle" onchange="ProfilePage.toggleTheme(this)">
+                    <span class="toggle-slider"></span>
+                  </label>
+                </div>
+                <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-top:1px solid var(--border)">
+                  <div>
+                    <div style="font-size:14px;font-weight:600;color:var(--text-primary)">🌐 Bahasa</div>
+                    <div style="font-size:12px;color:var(--text-muted)">Pilih bahasa tampilan</div>
+                  </div>
+                  <select class="form-input-p" style="width:auto" onchange="Toast.show('Fitur multi-bahasa segera hadir!','info')">
+                    <option>🇮🇩 Indonesia</option>
+                    <option>🇺🇸 English</option>
+                  </select>
+                </div>
+              </div>
+
+              <button class="btn-save-p" onclick="ProfilePage.savePreferences()">💾 Simpan Preferensi</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- TAB: Notifikasi -->
+        <div class="profile-tab" id="tab-notifications" style="display:none">
+          <div class="pcard">
+            <div class="pcard-header">
+              <div class="pcard-title">🔔 Pengaturan Notifikasi</div>
+            </div>
+            <div class="pcard-body">
+              <div id="notifList"></div>
+              <button class="btn-save-p" style="margin-top:20px" onclick="ProfilePage.saveNotifications()">💾 Simpan Pengaturan</button>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- end profile-content -->
+    </div><!-- end profile-layout -->
+  </div>
+</main>
+
+<!-- Toast container -->
+<div id="toastWrap" class="toast-container"></div>
+
+<!-- AUTH MODAL (simplified for profile page) -->
+<div class="modal-overlay" id="authModal">
+  <div class="modal" id="modalContent"></div>
+</div>
+
+<script src="js/main.js"></script>
+<script src="js/profile.js"></script>
+</body>
+</html>

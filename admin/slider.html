@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="light">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Slider - Admin Wisata Jomokerto</title>
+  <link rel="stylesheet" href="../css/admin.css">
+</head>
+<body>
+<div id="adminPanel" style="display:none;width:100%">
+  <div class="main" id="mainContent">
+    <div class="page-content">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px">
+        <div>
+          <h1 style="font-size:24px;font-weight:800;color:var(--text-primary)">🖼️ Manajemen Slider/Banner</h1>
+          <p style="color:var(--text-muted);font-size:14px">Slider hero website langsung berubah saat disimpan</p>
+        </div>
+        <button class="btn btn-primary" onclick="SLA.openAdd()">➕ Tambah Slide</button>
+      </div>
+
+      <div style="background:linear-gradient(135deg,#0d5bdd15,#ff6b3515);border:1px solid var(--border);border-radius:12px;padding:14px 18px;margin-bottom:24px;font-size:13px;color:var(--text-secondary)">
+        💡 <strong>Tips:</strong> Perubahan slider langsung tampil di hero website. Gunakan gambar horizontal beresolusi tinggi (min. 1200x600px).
+      </div>
+
+      <div id="sliderCards" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:20px"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Form -->
+<div class="modal-overlay" id="slModal">
+  <div class="modal" style="max-width:580px">
+    <div class="modal-header">
+      <div class="modal-title" id="slModalTitle">➕ Tambah Slide</div>
+      <button class="modal-close" onclick="AdminModal.close('slModal')">×</button>
+    </div>
+    <div class="modal-body">
+      <form id="slForm">
+        <div class="form-group">
+          <label class="form-label">Judul Slide *</label>
+          <input type="text" name="judul" class="form-input" placeholder="Jelajahi Keajaiban Nusantara" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Sub Judul</label>
+          <input type="text" name="subjudul" class="form-input" placeholder="Temukan destinasi wisata terbaik Indonesia">
+        </div>
+        <div class="form-group">
+          <label class="form-label">URL Gambar *</label>
+          <input type="url" name="gambar" class="form-input" placeholder="https://images.unsplash.com/..." oninput="SLA.prevImg(this)" required>
+          <img id="slImgPrev" style="display:none;width:100%;height:120px;object-fit:cover;border-radius:8px;margin-top:8px" onerror="this.style.display='none'">
+        </div>
+        <div class="form-grid form-grid-2">
+          <div class="form-group">
+            <label class="form-label">Teks Tombol</label>
+            <input type="text" name="btn_text" class="form-input" placeholder="Jelajahi Sekarang">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Link Tombol</label>
+            <input type="text" name="btn_link" class="form-input" placeholder="#destinasiSection">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Urutan</label>
+            <input type="number" name="urutan" class="form-input" placeholder="1" min="1">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Status</label>
+            <select name="status" class="form-input">
+              <option value="aktif">✅ Aktif</option>
+              <option value="nonaktif">⏸ Nonaktif</option>
+            </select>
+          </div>
+        </div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="AdminModal.close('slModal')">Batal</button>
+      <button class="btn btn-primary" onclick="SLA.save()">💾 Simpan Slide</button>
+    </div>
+  </div>
+</div>
+
+<div id="toastContainer" class="toast-container"></div>
+<script src="admin-shared.js"></script>
+<script src="admin.js"></script>
+<script>
+const SLA = {
+  data:[], editId:null,
+
+  init() { this.reload(); },
+
+  reload() {
+    this.data = WJData.getSliders().sort((a,b)=>a.urutan-b.urutan);
+    this.render();
+  },
+
+  render() {
+    const el=document.getElementById('sliderCards'); if(!el) return;
+    if(!this.data.length){ el.innerHTML=`<div style="text-align:center;padding:60px;color:var(--text-muted)">Belum ada slide</div>`; return; }
+    el.innerHTML=this.data.map((s,i)=>`
+      <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:14px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.05)">
+        <div style="position:relative;height:160px;overflow:hidden">
+          <img src="${s.gambar||''}" style="width:100%;height:100%;object-fit:cover" onerror="this.style.opacity='.15'">
+          <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.6),transparent)"></div>
+          <div style="position:absolute;top:10px;left:12px;background:rgba(0,0,0,.5);color:white;font-size:11px;font-weight:700;padding:3px 8px;border-radius:6px">#${s.urutan||i+1}</div>
+          <div style="position:absolute;top:10px;right:12px">${fmt.statusBadge(s.status||'aktif')}</div>
+          <div style="position:absolute;bottom:12px;left:14px;color:white">
+            <div style="font-size:15px;font-weight:800;text-shadow:0 1px 3px rgba(0,0,0,.5)">${s.judul||''}</div>
+            <div style="font-size:11px;opacity:.8;margin-top:2px">${(s.subjudul||'').substring(0,50)}${(s.subjudul||'').length>50?'...':''}</div>
+          </div>
+        </div>
+        <div style="padding:14px 16px">
+          ${s.btn_text?`<div style="font-size:12px;color:var(--text-muted);margin-bottom:10px">🔗 Tombol: <strong>${s.btn_text}</strong> → ${s.btn_link||'#'}</div>`:''}
+          <div style="display:flex;gap:8px">
+            <button class="btn btn-secondary btn-sm" onclick="SLA.openEdit(${i})">✏️ Edit</button>
+            <button class="btn btn-sm" style="background:${s.status==='aktif'?'#dcfce7':'#fef3c7'};color:${s.status==='aktif'?'#15803d':'#d97706'}" onclick="SLA.toggleStatus(${i})">🔄 ${s.status==='aktif'?'Nonaktifkan':'Aktifkan'}</button>
+            <button class="btn btn-sm" style="background:#fee2e2;color:#dc2626;margin-left:auto" onclick="SLA.del(${i})">🗑️</button>
+          </div>
+        </div>
+      </div>`).join('');
+  },
+
+  prevImg(input) {
+    const img=document.getElementById('slImgPrev');
+    img.src=input.value; img.style.display=input.value?'block':'none';
+    img.onerror=()=>img.style.display='none';
+  },
+
+  openAdd() {
+    this.editId=null;
+    document.getElementById('slModalTitle').textContent='➕ Tambah Slide';
+    document.getElementById('slForm').reset();
+    document.getElementById('slImgPrev').style.display='none';
+    AdminModal.open('slModal');
+  },
+
+  openEdit(idx) {
+    const s=this.data[idx]; if(!s) return;
+    this.editId=idx;
+    document.getElementById('slModalTitle').textContent='✏️ Edit Slide';
+    const f=document.getElementById('slForm');
+    ['judul','subjudul','gambar','btn_text','btn_link','urutan','status'].forEach(k=>{ if(f.elements[k]) f.elements[k].value=s[k]||''; });
+    const img=document.getElementById('slImgPrev');
+    if(s.gambar){img.src=s.gambar;img.style.display='block';}else img.style.display='none';
+    AdminModal.open('slModal');
+  },
+
+  save() {
+    const f=document.getElementById('slForm');
+    const data={};
+    new FormData(f).forEach((v,k)=>data[k]=v);
+    data.urutan=parseInt(data.urutan)||1;
+    if(!data.judul||!data.gambar){AdminToast.show('Judul dan gambar wajib diisi!','warning');return;}
+
+    if(this.editId!==null) {
+      this.data[this.editId]={...this.data[this.editId],...data};
+    } else {
+      data.id='SL'+Date.now();
+      this.data.push(data);
+    }
+    WJData.saveSliders(this.data);
+    AdminModal.close('slModal');
+    AdminToast.show('✅ Slider disimpan! Langsung tampil di website.','success');
+    this.reload();
+  },
+
+  toggleStatus(idx) {
+    const s=this.data[idx]; if(!s) return;
+    s.status=s.status==='aktif'?'nonaktif':'aktif';
+    WJData.saveSliders(this.data);
+    AdminToast.show(`Slide ${s.status}`,'info');
+    this.render();
+  },
+
+  del(idx) {
+    const s=this.data[idx];
+    if(!s||!confirm(`Hapus slide "${s.judul}"?`)) return;
+    this.data.splice(idx,1);
+    WJData.saveSliders(this.data);
+    AdminToast.show('🗑️ Slide dihapus','info');
+    this.render();
+  }
+};
+document.addEventListener('DOMContentLoaded',()=>{
+  adminPageInit({page:'slider',breadcrumb:'Slider/Banner',init:()=>SLA.init()});
+});
+</script>
+</body></html>
