@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Booking Saya - Wisata Jomokerto</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✈️</text></svg>">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/pages.css">
+</head>
+<body>
+
+<!-- LOADING -->
+<div id="loading-screen">
+  <div class="loader-logo">
+    <div class="logo-icon">✈️</div>
+    <div class="logo-text">Wisata Jomokerto</div>
+  </div>
+  <div class="loader-bar"><div class="loader-fill"></div></div>
+  <div class="loader-text">Memuat data booking...</div>
+</div>
+
+<!-- NAVBAR -->
+<nav class="navbar" id="navbar">
+  <div class="nav-container">
+    <a href="index.html" class="nav-logo">
+      <div class="logo-icon">✈️</div>
+      <div>
+        <div class="logo-name">Wisata Jomokerto</div>
+        <div class="logo-tagline">Jelajahi Dunia Bersamamu</div>
+      </div>
+    </a>
+    <ul class="nav-menu">
+      <li><a href="index.html" class="nav-link">🏠 Beranda</a></li>
+      <li><a href="index.html#destinasiSection" class="nav-link">🗺️ Destinasi</a></li>
+      <li><a href="bookings.html" class="nav-link active">🎫 Booking Saya</a></li>
+      <li><a href="profile.html" class="nav-link">👤 Profil</a></li>
+    </ul>
+    <div class="nav-right" id="navRight">
+      <button class="btn-theme" id="themeBtn">🌙</button>
+    </div>
+    <div class="hamburger" id="hamburger"><span></span><span></span><span></span></div>
+  </div>
+</nav>
+
+<!-- AUTH WALL -->
+<div id="authWall" style="display:none">
+  <div style="text-align:center; padding:80px 24px; max-width:400px; margin:auto">
+    <div style="font-size:72px;margin-bottom:20px">🔐</div>
+    <h2 style="font-size:24px;font-weight:800;color:var(--text-primary);margin-bottom:10px">Login Diperlukan</h2>
+    <p style="color:var(--text-secondary);margin-bottom:28px">Silakan login untuk melihat riwayat booking Anda</p>
+    <button onclick="window.location.href='index.html'" style="padding:13px 32px;background:linear-gradient(135deg,var(--primary),var(--primary-dark));color:white;border-radius:var(--radius);border:none;font-size:15px;font-weight:700;cursor:pointer;font-family:var(--font)">
+      ← Kembali & Login
+    </button>
+  </div>
+</div>
+
+<!-- MAIN -->
+<main id="bookingMain" style="display:none; padding-top:var(--nav-height); min-height:100vh; background:var(--bg)">
+  <div class="container" style="padding-top:40px;padding-bottom:60px">
+
+    <!-- Page Header -->
+    <div class="bk-page-header">
+      <div>
+        <h1 class="bk-page-title">🎫 Booking Saya</h1>
+        <p class="bk-page-sub">Kelola semua pesanan perjalanan Anda</p>
+      </div>
+      <button class="btn-bk-new" onclick="BookingPage.newBooking()">
+        ➕ Booking Baru
+      </button>
+    </div>
+
+    <!-- Stats Row -->
+    <div class="bk-stats-row" id="bkStatsRow">
+      <div class="bk-stat-card">
+        <div class="bk-stat-icon" style="background:#e8f0fe">🎫</div>
+        <div>
+          <div class="bk-stat-num" id="bkTotal">0</div>
+          <div class="bk-stat-label">Total Booking</div>
+        </div>
+      </div>
+      <div class="bk-stat-card">
+        <div class="bk-stat-icon" style="background:#fef3c7">⏳</div>
+        <div>
+          <div class="bk-stat-num" id="bkPending">0</div>
+          <div class="bk-stat-label">Menunggu</div>
+        </div>
+      </div>
+      <div class="bk-stat-card">
+        <div class="bk-stat-icon" style="background:#dcfce7">✅</div>
+        <div>
+          <div class="bk-stat-num" id="bkConfirmed">0</div>
+          <div class="bk-stat-label">Dikonfirmasi</div>
+        </div>
+      </div>
+      <div class="bk-stat-card">
+        <div class="bk-stat-icon" style="background:#f0fdf4">🏁</div>
+        <div>
+          <div class="bk-stat-num" id="bkCompleted">0</div>
+          <div class="bk-stat-label">Selesai</div>
+        </div>
+      </div>
+      <div class="bk-stat-card">
+        <div class="bk-stat-icon" style="background:#fce7f3">💰</div>
+        <div>
+          <div class="bk-stat-num" id="bkSpend">Rp 0</div>
+          <div class="bk-stat-label">Total Pengeluaran</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Filter & Search -->
+    <div class="bk-filter-row">
+      <div class="bk-tabs">
+        <button class="bk-tab active" data-status="all">📋 Semua</button>
+        <button class="bk-tab" data-status="pending">⏳ Pending</button>
+        <button class="bk-tab" data-status="confirmed">✅ Confirmed</button>
+        <button class="bk-tab" data-status="completed">🏁 Selesai</button>
+        <button class="bk-tab" data-status="cancelled">❌ Dibatalkan</button>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <div style="position:relative">
+          <span style="position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--text-muted)">🔍</span>
+          <input type="text" id="bkSearchInput" placeholder="Cari kode / destinasi..." style="padding:9px 14px 9px 34px;border-radius:var(--radius-sm);border:1.5px solid var(--border);background:var(--bg-card);font-size:13px;font-family:var(--font);color:var(--text-primary);width:220px;transition:var(--transition)" oninput="BookingPage.search(this.value)" onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='var(--border)'">
+        </div>
+        <select id="bkSortSelect" onchange="BookingPage.sort(this.value)" style="padding:9px 12px;border-radius:var(--radius-sm);border:1.5px solid var(--border);background:var(--bg-card);font-size:13px;font-family:var(--font);color:var(--text-primary)">
+          <option value="newest">Terbaru</option>
+          <option value="oldest">Terlama</option>
+          <option value="price_high">Harga Tertinggi</option>
+          <option value="price_low">Harga Terendah</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Booking List -->
+    <div id="bookingList">
+      <div style="text-align:center;padding:80px 20px;color:var(--text-muted)">
+        <div style="font-size:48px;margin-bottom:12px">⏳</div>
+        Memuat data booking...
+      </div>
+    </div>
+
+    <!-- Pagination -->
+    <div id="bkPagination" style="display:flex;justify-content:center;gap:8px;margin-top:32px;flex-wrap:wrap"></div>
+
+  </div>
+</main>
+
+<!-- ===== MODAL DETAIL BOOKING ===== -->
+<div class="modal-overlay" id="bkDetailModal">
+  <div class="modal" style="max-width:600px" id="bkDetailContent"></div>
+</div>
+
+<!-- ===== MODAL BOOKING BARU ===== -->
+<div class="modal-overlay" id="bkNewModal">
+  <div class="modal" style="max-width:640px">
+    <div style="padding:24px 28px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:var(--bg-card);z-index:10;border-radius:var(--radius-xl) var(--radius-xl) 0 0">
+      <div style="font-size:18px;font-weight:800;color:var(--text-primary)">🎫 Buat Booking Baru</div>
+      <button onclick="BookingPage.closeNew()" style="width:32px;height:32px;border-radius:50%;background:var(--bg);border:1px solid var(--border);cursor:pointer;font-size:18px">×</button>
+    </div>
+    <div style="padding:24px 28px;overflow-y:auto;max-height:calc(90vh - 140px)">
+      <form id="newBookingForm">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+          <div class="form-group" style="grid-column:span 2">
+            <label class="form-label-p">Pilih Destinasi <span style="color:red">*</span></label>
+            <select class="form-input-p" id="bkDestSelect" required onchange="BookingPage.updatePrice()">
+              <option value="">-- Pilih Destinasi --</option>
+            </select>
+          </div>
+          <div class="form-group" style="grid-column:span 2">
+            <label class="form-label-p">Jenis Booking</label>
+            <div style="display:flex;gap:8px;flex-wrap:wrap">
+              <label style="display:flex;align-items:center;gap:6px;padding:8px 14px;border-radius:8px;border:1.5px solid var(--border);cursor:pointer;font-size:13px;font-weight:600;transition:var(--transition)" id="typeDestLabel">
+                <input type="radio" name="bkTipe" value="destinasi" checked onchange="BookingPage.updatePrice()"> 🗺️ Destinasi
+              </label>
+              <label style="display:flex;align-items:center;gap:6px;padding:8px 14px;border-radius:8px;border:1.5px solid var(--border);cursor:pointer;font-size:13px;font-weight:600;transition:var(--transition)">
+                <input type="radio" name="bkTipe" value="paket" onchange="BookingPage.updatePrice()"> 🎁 Paket Wisata
+              </label>
+              <label style="display:flex;align-items:center;gap:6px;padding:8px 14px;border-radius:8px;border:1.5px solid var(--border);cursor:pointer;font-size:13px;font-weight:600;transition:var(--transition)">
+                <input type="radio" name="bkTipe" value="transport" onchange="BookingPage.updatePrice()"> ✈️ Transport
+              </label>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label-p">Tanggal Berangkat <span style="color:red">*</span></label>
+            <input type="date" class="form-input-p" id="bkDate" required min="">
+          </div>
+          <div class="form-group">
+            <label class="form-label-p">Jumlah Peserta <span style="color:red">*</span></label>
+            <input type="number" class="form-input-p" id="bkPax" value="1" min="1" max="20" required onchange="BookingPage.updatePrice()">
+          </div>
+          <div class="form-group">
+            <label class="form-label-p">Nama Kontak <span style="color:red">*</span></label>
+            <input type="text" class="form-input-p" id="bkContactName" placeholder="Nama pemesan" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label-p">Nomor WhatsApp <span style="color:red">*</span></label>
+            <input type="tel" class="form-input-p" id="bkContactPhone" placeholder="08xxxxxxxxxx" required>
+          </div>
+          <div class="form-group" style="grid-column:span 2">
+            <label class="form-label-p">Catatan Khusus</label>
+            <textarea class="form-input-p" id="bkNotes" rows="2" placeholder="Permintaan khusus, alergi, dll..."></textarea>
+          </div>
+        </div>
+
+        <!-- Price Preview -->
+        <div id="pricePreview" style="background:var(--primary-light);border-radius:var(--radius);padding:16px;margin-top:16px;display:none">
+          <div style="font-size:12px;color:var(--text-muted);margin-bottom:8px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px">Rincian Harga</div>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+            <span style="font-size:13px;color:var(--text-secondary)" id="priceDesc">-</span>
+          </div>
+          <div style="height:1px;background:var(--border);margin:10px 0"></div>
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <span style="font-size:14px;font-weight:700;color:var(--text-primary)">Total</span>
+            <span style="font-size:22px;font-weight:800;color:var(--primary)" id="priceTotal">Rp 0</span>
+          </div>
+        </div>
+
+        <!-- Payment Method -->
+        <div style="margin-top:20px">
+          <div class="form-label-p" style="margin-bottom:10px">💳 Metode Pembayaran</div>
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px" id="paymentMethods">
+            <label class="payment-option active-pay">
+              <input type="radio" name="payment" value="transfer_bank" checked>
+              <span class="pay-icon">🏦</span>
+              <span class="pay-name">Transfer Bank</span>
+            </label>
+            <label class="payment-option">
+              <input type="radio" name="payment" value="gopay">
+              <span class="pay-icon">💚</span>
+              <span class="pay-name">GoPay</span>
+            </label>
+            <label class="payment-option">
+              <input type="radio" name="payment" value="ovo">
+              <span class="pay-icon">💜</span>
+              <span class="pay-name">OVO</span>
+            </label>
+            <label class="payment-option">
+              <input type="radio" name="payment" value="qris">
+              <span class="pay-icon">📱</span>
+              <span class="pay-name">QRIS</span>
+            </label>
+            <label class="payment-option">
+              <input type="radio" name="payment" value="cod">
+              <span class="pay-icon">💵</span>
+              <span class="pay-name">Bayar di Tempat</span>
+            </label>
+            <label class="payment-option">
+              <input type="radio" name="payment" value="cicilan">
+              <span class="pay-icon">📊</span>
+              <span class="pay-name">Cicilan</span>
+            </label>
+          </div>
+        </div>
+      </form>
+    </div>
+    <div style="padding:16px 28px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:12px;border-radius:0 0 var(--radius-xl) var(--radius-xl)">
+      <button onclick="BookingPage.closeNew()" style="padding:12px 24px;border-radius:var(--radius);border:1.5px solid var(--border);background:var(--bg);color:var(--text-secondary);font-size:14px;font-weight:600;cursor:pointer;font-family:var(--font)">Batal</button>
+      <button onclick="BookingPage.submitNew()" style="padding:12px 28px;border-radius:var(--radius);background:linear-gradient(135deg,var(--primary),var(--primary-dark));color:white;font-size:14px;font-weight:700;cursor:pointer;font-family:var(--font);border:none;box-shadow:0 4px 14px rgba(13,91,221,0.35)">🎫 Buat Booking</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== MODAL REVIEW ===== -->
+<div class="modal-overlay" id="reviewModal">
+  <div class="modal" style="max-width:480px">
+    <div style="padding:24px 28px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between">
+      <div style="font-size:17px;font-weight:800">⭐ Beri Ulasan</div>
+      <button onclick="document.getElementById('reviewModal').classList.remove('open');document.body.style.overflow=''" style="width:32px;height:32px;border-radius:50%;background:var(--bg);border:1px solid var(--border);cursor:pointer;font-size:18px">×</button>
+    </div>
+    <div style="padding:24px 28px" id="reviewForm">
+      <div style="text-align:center;margin-bottom:20px" id="reviewDestName"></div>
+      <div style="margin-bottom:16px">
+        <div style="font-size:13px;font-weight:700;color:var(--text-primary);margin-bottom:10px">Rating</div>
+        <div style="display:flex;gap:8px;justify-content:center" id="starRating">
+          <span class="star-btn" data-val="1">⭐</span>
+          <span class="star-btn" data-val="2">⭐</span>
+          <span class="star-btn" data-val="3">⭐</span>
+          <span class="star-btn" data-val="4">⭐</span>
+          <span class="star-btn" data-val="5">⭐</span>
+        </div>
+        <div style="text-align:center;margin-top:6px;font-size:13px;color:var(--text-muted)" id="ratingLabel">Pilih rating</div>
+      </div>
+      <textarea id="reviewText" style="width:100%;padding:12px 14px;border-radius:var(--radius);border:1.5px solid var(--border);background:var(--bg);font-size:14px;font-family:var(--font);color:var(--text-primary);resize:vertical;min-height:100px" placeholder="Ceritakan pengalaman wisata Anda..."></textarea>
+      <button onclick="BookingPage.submitReview()" style="width:100%;margin-top:16px;padding:13px;background:linear-gradient(135deg,var(--primary),var(--primary-dark));color:white;border-radius:var(--radius);border:none;font-size:14px;font-weight:700;cursor:pointer;font-family:var(--font)">
+        ⭐ Kirim Ulasan
+      </button>
+    </div>
+  </div>
+</div>
+
+<div id="toastWrap" class="toast-container"></div>
+
+<!-- Auth modal -->
+<div class="modal-overlay" id="authModal">
+  <div class="modal" id="modalContent"></div>
+</div>
+
+<script src="js/main.js"></script>
+<script src="js/bookings.js"></script>
+</body>
+</html>

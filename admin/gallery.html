@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="light">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Galeri - Admin Wisata Jomokerto</title>
+  <link rel="stylesheet" href="../css/admin.css">
+</head>
+<body>
+<div id="adminPanel" style="display:none;width:100%">
+  <div class="main" id="mainContent">
+    <div class="page-content">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px">
+        <div>
+          <h1 style="font-size:24px;font-weight:800;color:var(--text-primary)">📸 Manajemen Galeri</h1>
+          <p style="color:var(--text-muted);font-size:14px">Foto yang aktif tampil di section galeri website</p>
+        </div>
+        <button class="btn btn-primary" onclick="GA.openAdd()">➕ Tambah Foto</button>
+      </div>
+
+      <div class="stats-grid" style="margin-bottom:24px">
+        <div class="stat-card"><div class="stat-icon" style="background:var(--primary-light)">📸</div><div><div class="stat-num" id="glTotal">-</div><div class="stat-label">Total Foto</div></div></div>
+        <div class="stat-card"><div class="stat-icon" style="background:#dcfce7">✅</div><div><div class="stat-num" id="glAktif">-</div><div class="stat-label">Aktif</div></div></div>
+        <div class="stat-card"><div class="stat-icon" style="background:#fee2e2">⏸</div><div><div class="stat-num" id="glNonaktif">-</div><div class="stat-label">Nonaktif</div></div></div>
+      </div>
+
+      <div id="galleryGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:16px"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Form -->
+<div class="modal-overlay" id="glModal">
+  <div class="modal" style="max-width:480px">
+    <div class="modal-header">
+      <div class="modal-title" id="glModalTitle">➕ Tambah Foto Galeri</div>
+      <button class="modal-close" onclick="AdminModal.close('glModal')">×</button>
+    </div>
+    <div class="modal-body">
+      <form id="glForm">
+        <div class="form-group">
+          <label class="form-label">Judul Foto</label>
+          <input type="text" name="judul" class="form-input" placeholder="Sunrise Bromo">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Nama Destinasi</label>
+          <input type="text" name="namaDestinasi" class="form-input" placeholder="Bromo Tengger Semeru">
+        </div>
+        <div class="form-group">
+          <label class="form-label">URL Gambar *</label>
+          <input type="url" name="gambar" class="form-input" placeholder="https://images.unsplash.com/..." oninput="GA.prevImg(this)" required>
+          <img id="glImgPrev" style="display:none;width:100%;height:130px;object-fit:cover;border-radius:8px;margin-top:8px" onerror="this.style.display='none'">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Status</label>
+          <select name="status" class="form-input">
+            <option value="aktif">✅ Aktif (tampil di website)</option>
+            <option value="nonaktif">⏸ Nonaktif</option>
+          </select>
+        </div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="AdminModal.close('glModal')">Batal</button>
+      <button class="btn btn-primary" onclick="GA.save()">💾 Simpan</button>
+    </div>
+  </div>
+</div>
+
+<div id="toastContainer" class="toast-container"></div>
+<script src="admin-shared.js"></script>
+<script src="admin.js"></script>
+<script>
+const GA = {
+  data:[], editIdx:null,
+
+  init() { this.reload(); },
+
+  reload() {
+    this.data = WJData.getGallery();
+    this.stats(); this.render();
+  },
+
+  stats() {
+    const d=this.data;
+    const s=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v;};
+    s('glTotal',d.length);
+    s('glAktif',d.filter(x=>!x.status||x.status==='aktif').length);
+    s('glNonaktif',d.filter(x=>x.status==='nonaktif').length);
+  },
+
+  render() {
+    const el=document.getElementById('galleryGrid'); if(!el) return;
+    if(!this.data.length){ el.innerHTML=`<div style="grid-column:1/-1;text-align:center;padding:60px;color:var(--text-muted)">Belum ada foto galeri</div>`; return; }
+    el.innerHTML=this.data.map((g,i)=>`
+      <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:12px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.05)">
+        <div style="position:relative;height:160px;overflow:hidden">
+          <img src="${g.gambar||''}" style="width:100%;height:100%;object-fit:cover;transition:transform .3s" onmouseover="this.style.transform='scale(1.06)'" onmouseout="this.style.transform='scale(1)'" onerror="this.style.opacity='.15'">
+          <div style="position:absolute;top:8px;right:8px">${fmt.statusBadge(g.status||'aktif')}</div>
+        </div>
+        <div style="padding:12px 14px">
+          <div style="font-weight:700;font-size:13px;margin-bottom:2px">${g.judul||'(tanpa judul)'}</div>
+          <div style="font-size:11px;color:var(--text-muted);margin-bottom:10px">📍 ${g.namaDestinasi||'-'}</div>
+          <div style="display:flex;gap:6px">
+            <button class="btn btn-secondary btn-sm" onclick="GA.openEdit(${i})">✏️</button>
+            <button class="btn btn-sm" style="background:${(g.status||'aktif')==='aktif'?'#fef3c7':'#dcfce7'};color:${(g.status||'aktif')==='aktif'?'#d97706':'#15803d'}" onclick="GA.toggleStatus(${i})">🔄</button>
+            <button class="btn btn-sm" style="background:#fee2e2;color:#dc2626;margin-left:auto" onclick="GA.del(${i})">🗑️</button>
+          </div>
+        </div>
+      </div>`).join('');
+  },
+
+  prevImg(input) {
+    const img=document.getElementById('glImgPrev');
+    img.src=input.value; img.style.display=input.value?'block':'none';
+    img.onerror=()=>img.style.display='none';
+  },
+
+  openAdd() {
+    this.editIdx=null;
+    document.getElementById('glModalTitle').textContent='➕ Tambah Foto Galeri';
+    document.getElementById('glForm').reset();
+    document.getElementById('glImgPrev').style.display='none';
+    AdminModal.open('glModal');
+  },
+
+  openEdit(idx) {
+    const g=this.data[idx]; if(!g) return;
+    this.editIdx=idx;
+    document.getElementById('glModalTitle').textContent='✏️ Edit Foto';
+    const f=document.getElementById('glForm');
+    ['judul','namaDestinasi','gambar','status'].forEach(k=>{ if(f.elements[k]) f.elements[k].value=g[k]||''; });
+    const img=document.getElementById('glImgPrev');
+    if(g.gambar){img.src=g.gambar;img.style.display='block';}else img.style.display='none';
+    AdminModal.open('glModal');
+  },
+
+  save() {
+    const f=document.getElementById('glForm');
+    const data={};
+    new FormData(f).forEach((v,k)=>data[k]=v);
+    if(!data.gambar){AdminToast.show('URL gambar wajib diisi!','warning');return;}
+
+    if(this.editIdx!==null) {
+      this.data[this.editIdx]={...this.data[this.editIdx],...data};
+    } else {
+      data.id='G'+Date.now();
+      this.data.push(data);
+    }
+    WJData.saveGallery(this.data);
+    AdminModal.close('glModal');
+    AdminToast.show('✅ Galeri disimpan! Tampil di website.','success');
+    this.reload();
+  },
+
+  toggleStatus(idx) {
+    const g=this.data[idx]; if(!g) return;
+    g.status=(!g.status||g.status==='aktif')?'nonaktif':'aktif';
+    WJData.saveGallery(this.data);
+    AdminToast.show(`Foto ${g.status}`,'info');
+    this.render();
+  },
+
+  del(idx) {
+    const g=this.data[idx];
+    if(!g||!confirm(`Hapus foto "${g.judul||'ini'}"?`)) return;
+    this.data.splice(idx,1);
+    WJData.saveGallery(this.data);
+    AdminToast.show('🗑️ Foto dihapus','info');
+    this.reload();
+  }
+};
+document.addEventListener('DOMContentLoaded',()=>{
+  adminPageInit({page:'gallery',breadcrumb:'Galeri',init:()=>GA.init()});
+});
+</script>
+</body></html>

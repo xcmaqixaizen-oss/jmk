@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Wisata Jomokerto - Platform wisata terlengkap. Temukan destinasi dalam dan luar negeri, paket tour, dan berbagai pilihan transportasi.">
+  <meta property="og:title" content="Wisata Jomokerto - Jelajahi Dunia Bersamamu">
+  <meta property="og:image" content="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1200">
+  <title>Wisata Jomokerto - Jelajahi Dunia Bersamamu ✈️</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✈️</text></svg>">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- ===== LOADING SCREEN ===== -->
+<div id="loading-screen">
+  <div class="loader-logo">
+    <div class="logo-icon">✈️</div>
+    <div class="logo-text">Wisata Jomokerto</div>
+  </div>
+  <div class="loader-bar">
+    <div class="loader-fill"></div>
+  </div>
+  <div class="loader-text">Menyiapkan pengalaman terbaik untuk Anda...</div>
+</div>
+
+<!-- ===== NAVBAR ===== -->
+<nav class="navbar" id="navbar">
+  <div class="nav-container">
+    <!-- Logo -->
+    <a href="index.html" class="nav-logo">
+      <div class="logo-icon">✈️</div>
+      <div>
+        <div class="logo-name">Wisata Jomokerto</div>
+        <div class="logo-tagline">Jelajahi Dunia Bersamamu</div>
+      </div>
+    </a>
+
+    <!-- Desktop Menu -->
+    <ul class="nav-menu">
+      <!-- Destinasi Dropdown -->
+      <li class="nav-item">
+        <a href="#destinasiSection" class="nav-link active">
+          🗺️ Destinasi <span class="nav-arrow">▾</span>
+        </a>
+        <div class="nav-dropdown">
+          <a href="#destinasiSection" onclick="Destinations.filter('dalam_negeri')" class="dropdown-item">
+            <span class="icon">🇮🇩</span>
+            <div>
+              <div style="font-weight:600;color:var(--text-primary)">Dalam Negeri</div>
+              <div style="font-size:12px;color:var(--text-muted)">Ribuan destinasi Indonesia</div>
+            </div>
+          </a>
+          <a href="#destinasiSection" onclick="Destinations.filter('luar_negeri')" class="dropdown-item">
+            <span class="icon">🌍</span>
+            <div>
+              <div style="font-weight:600;color:var(--text-primary)">Luar Negeri</div>
+              <div style="font-size:12px;color:var(--text-muted)">Mancanegara & internasional</div>
+            </div>
+          </a>
+          <div class="dropdown-divider"></div>
+          <a href="#destinasiSection" onclick="Destinations.filter('semua','pantai')" class="dropdown-item">
+            <span class="icon">🏖️</span> Pantai & Bahari
+          </a>
+          <a href="#destinasiSection" onclick="Destinations.filter('semua','gunung')" class="dropdown-item">
+            <span class="icon">⛰️</span> Gunung & Alam
+          </a>
+          <a href="#destinasiSection" onclick="Destinations.filter('semua','budaya')" class="dropdown-item">
+            <span class="icon">🏛️</span> Budaya & Sejarah
+          </a>
+          <a href="#destinasiSection" onclick="Destinations.filter('semua','kota')" class="dropdown-item">
+            <span class="icon">🏙️</span> Wisata Kota
+          </a>
+        </div>
+      </li>
+
+      <!-- Transport Dropdown -->
+      <li class="nav-item">
+        <a href="#transportSection" class="nav-link">
+          🚀 Transportasi <span class="nav-arrow">▾</span>
+        </a>
+        <div class="nav-dropdown">
+          <a href="#transportSection" class="dropdown-item" onclick="document.querySelector('[data-type=pesawat]').click()">
+            <span class="icon">✈️</span>
+            <div>
+              <div style="font-weight:600;color:var(--text-primary)">Pesawat</div>
+              <div style="font-size:12px;color:var(--text-muted)">Penerbangan domestik & internasional</div>
+            </div>
+          </a>
+          <a href="#transportSection" class="dropdown-item" onclick="document.querySelector('[data-type=bus]').click()">
+            <span class="icon">🚌</span>
+            <div>
+              <div style="font-weight:600;color:var(--text-primary)">Bus</div>
+              <div style="font-size:12px;color:var(--text-muted)">Bus malam & antar kota</div>
+            </div>
+          </a>
+          <a href="#transportSection" class="dropdown-item" onclick="document.querySelector('[data-type=kapal]').click()">
+            <span class="icon">🚢</span>
+            <div>
+              <div style="font-weight:600;color:var(--text-primary)">Kapal</div>
+              <div style="font-size:12px;color:var(--text-muted)">Feri & kapal cepat</div>
+            </div>
+          </a>
+          <a href="#transportSection" class="dropdown-item" onclick="document.querySelector('[data-type=kereta]').click()">
+            <span class="icon">🚆</span>
+            <div>
+              <div style="font-weight:600;color:var(--text-primary)">Kereta</div>
+              <div style="font-size:12px;color:var(--text-muted)">Kereta api & ekspres</div>
+            </div>
+          </a>
+        </div>
+      </li>
+
+      <!-- Paket -->
+      <li class="nav-item">
+        <a href="#paketSection" class="nav-link">
+          🎁 Paket Wisata <span class="nav-arrow">▾</span>
+        </a>
+        <div class="nav-dropdown">
+          <a href="#paketSection" class="dropdown-item"><span class="icon">🏝️</span> Paket Dalam Negeri</a>
+          <a href="#paketSection" class="dropdown-item"><span class="icon">🌏</span> Paket Luar Negeri</a>
+          <a href="#paketSection" class="dropdown-item"><span class="icon">💑</span> Paket Honeymoon</a>
+          <a href="#paketSection" class="dropdown-item"><span class="icon">👨‍👩‍👧</span> Paket Keluarga</a>
+          <div class="dropdown-divider"></div>
+          <a href="#paketSection" class="dropdown-item" style="color:var(--secondary)">🔥 Promo Terbatas</a>
+        </div>
+      </li>
+
+      <!-- Info -->
+      <li class="nav-item">
+        <a href="#" class="nav-link">
+          📖 Info <span class="nav-arrow">▾</span>
+        </a>
+        <div class="nav-dropdown">
+          <a href="#tentangSection" class="dropdown-item"><span class="icon">🏢</span> Tentang Kami</a>
+          <a href="#" class="dropdown-item"><span class="icon">📰</span> Blog & Tips Wisata</a>
+          <a href="#" class="dropdown-item"><span class="icon">❓</span> FAQ</a>
+          <a href="#" class="dropdown-item"><span class="icon">📞</span> Kontak & Bantuan</a>
+        </div>
+      </li>
+
+      <!-- Promo -->
+      <li class="nav-item">
+        <a href="#promoSection" class="nav-link" style="color:var(--secondary)">
+          🔥 Promo
+        </a>
+      </li>
+    </ul>
+
+    <!-- Nav Right -->
+    <div class="nav-right" id="navRight">
+      <button class="btn-theme" id="themeBtn" title="Toggle theme">🌙</button>
+      <button class="btn-login" onclick="Modal.open('login')">Masuk</button>
+      <button class="btn-register" onclick="Modal.open('register')">Daftar Gratis</button>
+    </div>
+
+    <!-- Hamburger Mobile -->
+    <div class="hamburger" id="hamburger">
+      <span></span><span></span><span></span>
+    </div>
+  </div>
+</nav>
+
+<!-- Mobile Nav -->
+<div class="mobile-nav" id="mobileNav">
+  <div style="display:flex;flex-direction:column;gap:4px">
+    <a href="#destinasiSection" class="nav-link" style="padding:12px 16px">🗺️ Destinasi</a>
+    <a href="#transportSection" class="nav-link" style="padding:12px 16px">🚀 Transportasi</a>
+    <a href="#paketSection" class="nav-link" style="padding:12px 16px">🎁 Paket Wisata</a>
+    <a href="#promoSection" class="nav-link" style="padding:12px 16px;color:var(--secondary)">🔥 Promo</a>
+    <a href="#tentangSection" class="nav-link" style="padding:12px 16px">📖 Tentang</a>
+    <div style="height:1px;background:var(--border);margin:8px 0"></div>
+    <button class="btn-login" onclick="Modal.open('login')" style="margin:4px 0">Masuk</button>
+    <button class="btn-register" onclick="Modal.open('register')" style="margin:4px 0">Daftar Gratis</button>
+    <div style="height:1px;background:var(--border);margin:8px 0"></div>
+    <button class="btn-theme" style="align-self:flex-start;width:auto;padding:8px 16px;gap:8px;display:flex;align-items:center">
+      🌙 Ganti Tema
+    </button>
+  </div>
+</div>
+
+<!-- ===== HERO SECTION ===== -->
+<section class="hero" id="heroSection">
+  <!-- Slider -->
+  <div class="hero-slider">
+    <div class="hero-slide active">
+      <img src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1920&q=80" alt="Bromo">
+      <div class="hero-overlay"></div>
+    </div>
+    <div class="hero-slide">
+      <img src="https://images.unsplash.com/photo-1613395877344-13d4a8e0d49e?w=1920&q=80" alt="Santorini">
+      <div class="hero-overlay"></div>
+    </div>
+    <div class="hero-slide">
+      <img src="https://images.unsplash.com/photo-1544644181-1484b3fdfc62?w=1920&q=80" alt="Raja Ampat">
+      <div class="hero-overlay"></div>
+    </div>
+  </div>
+
+  <!-- Hero Content -->
+  <div class="hero-content">
+    <div class="hero-badge">
+      <span>⭐</span> Platform Wisata #1 di Mojokerto
+    </div>
+    <h1 class="hero-title">
+      Jelajahi Keindahan<br><span>Dunia Bersamamu</span>
+    </h1>
+    <p class="hero-subtitle">
+      Temukan ribuan destinasi wisata terbaik dalam dan luar negeri. Pesan paket wisata, tiket, dan akomodasi dengan mudah dan terpercaya.
+    </p>
+
+    <div class="hero-stats">
+      <div class="hero-stat">
+        <div class="num">500+</div>
+        <div class="label">Destinasi</div>
+      </div>
+      <div class="hero-stat">
+        <div class="num">50K+</div>
+        <div class="label">Wisatawan</div>
+      </div>
+      <div class="hero-stat">
+        <div class="num">4.9⭐</div>
+        <div class="label">Rating</div>
+      </div>
+      <div class="hero-stat">
+        <div class="num">24/7</div>
+        <div class="label">Support</div>
+      </div>
+    </div>
+
+    <!-- Search Box -->
+    <div class="search-box">
+      <div class="search-tabs">
+        <button class="search-tab active" data-transport="pesawat">✈️ Pesawat</button>
+        <button class="search-tab" data-transport="bus">🚌 Bus</button>
+        <button class="search-tab" data-transport="kapal">🚢 Kapal</button>
+        <button class="search-tab" data-transport="kereta">🚆 Kereta</button>
+        <button class="search-tab" data-transport="paket">🎁 Paket Wisata</button>
+      </div>
+      
+      <div class="search-form">
+        <div class="search-field">
+          <label>📍 Dari Mana</label>
+          <div class="search-input-wrap">
+            <span class="icon">🏙️</span>
+            <input type="text" placeholder="Kota asal..." id="searchAsal" list="kotaList">
+          </div>
+        </div>
+        
+        <div class="search-field">
+          <label>🎯 Tujuan</label>
+          <div class="search-input-wrap">
+            <span class="icon">📍</span>
+            <input type="text" placeholder="Cari destinasi..." id="searchDest" autocomplete="off">
+          </div>
+        </div>
+        
+        <div class="search-field">
+          <label>📅 Tanggal</label>
+          <div class="search-input-wrap">
+            <span class="icon">📅</span>
+            <input type="date" id="searchDate" min="">
+          </div>
+        </div>
+        
+        <div class="search-field">
+          <label>👥 Penumpang</label>
+          <div class="search-input-wrap">
+            <span class="icon">👤</span>
+            <select id="searchPax">
+              <option value="1">1 Orang</option>
+              <option value="2">2 Orang</option>
+              <option value="3">3 Orang</option>
+              <option value="4">4 Orang</option>
+              <option value="5">5+ Orang</option>
+            </select>
+          </div>
+        </div>
+        
+        <button class="btn-search">
+          🔍 Cari
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Slider Dots -->
+  <div class="hero-controls">
+    <button class="hero-dot active"></button>
+    <button class="hero-dot"></button>
+    <button class="hero-dot"></button>
+  </div>
+</section>
+
+<!-- ===== TRANSPORTASI SECTION ===== -->
+<section class="transport-section" id="transportSection">
+  <div class="container">
+    <div style="text-align:center; margin-bottom:24px">
+      <div class="section-badge">🚀 Pilihan Transportasi</div>
+      <h2 style="font-family:var(--font-display);font-size:26px;color:var(--text-primary)">Perjalanan Makin Mudah</h2>
+    </div>
+    <div class="transport-grid">
+      <div class="transport-card active" data-type="pesawat">
+        <div class="transport-icon">✈️</div>
+        <div class="transport-name">Pesawat</div>
+        <div class="transport-desc">Penerbangan domestik & internasional</div>
+      </div>
+      <div class="transport-card" data-type="bus">
+        <div class="transport-icon">🚌</div>
+        <div class="transport-name">Bus</div>
+        <div class="transport-desc">Bus malam & antar kota</div>
+      </div>
+      <div class="transport-card" data-type="kapal">
+        <div class="transport-icon">🚢</div>
+        <div class="transport-name">Kapal</div>
+        <div class="transport-desc">Feri, speedboat & kapal cepat</div>
+      </div>
+      <div class="transport-card" data-type="kereta">
+        <div class="transport-icon">🚆</div>
+        <div class="transport-name">Kereta</div>
+        <div class="transport-desc">Kereta api & ekspres</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== DESTINASI SECTION ===== -->
+<section class="section" id="destinasiSection">
+  <div class="container">
+    <div class="section-header reveal">
+      <div class="section-badge">🗺️ Eksplorasi Destinasi</div>
+      <h2 class="section-title">Destinasi Pilihan Terbaik</h2>
+      <p class="section-subtitle">Dari pantai eksotis hingga puncak gunung, temukan destinasi wisata impian Anda</p>
+    </div>
+
+    <!-- Filter Tipe -->
+    <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:16px; margin-bottom:20px;" class="reveal">
+      <div class="dest-tabs" id="typeTabs">
+        <button class="dest-tab active" data-type="semua">🌐 Semua</button>
+        <button class="dest-tab" data-type="dalam_negeri">🇮🇩 Dalam Negeri</button>
+        <button class="dest-tab" data-type="luar_negeri">🌍 Luar Negeri</button>
+      </div>
+      
+      <!-- Search inline -->
+      <div style="position:relative">
+        <span style="position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--text-muted)">🔍</span>
+        <input type="text" id="searchDest" placeholder="Cari destinasi..." 
+          style="padding:10px 14px 10px 36px; border-radius:var(--radius-full); border:1.5px solid var(--border); background:var(--bg-card); font-size:13px; font-family:var(--font); color:var(--text-primary); width:220px; transition:var(--transition);"
+          onfocus="this.style.borderColor='var(--primary)'; this.style.width='280px'"
+          onblur="this.style.borderColor='var(--border)'; this.style.width='220px'">
+      </div>
+    </div>
+
+    <!-- Filter Kategori -->
+    <div class="dest-tabs reveal reveal-delay-1" id="catTabs" style="margin-bottom:32px;flex-wrap:wrap">
+      <button class="dest-tab active" data-cat="semua">🌐 Semua</button>
+      <button class="dest-tab" data-cat="pantai">🏖️ Pantai</button>
+      <button class="dest-tab" data-cat="gunung">⛰️ Gunung</button>
+      <button class="dest-tab" data-cat="budaya">🏛️ Budaya</button>
+      <button class="dest-tab" data-cat="kota">🏙️ Kota</button>
+      <button class="dest-tab" data-cat="alam">🌿 Alam</button>
+    </div>
+
+    <!-- Destination Grid -->
+    <div class="dest-grid" id="destGrid">
+      <!-- Diisi oleh JS -->
+      <div style="grid-column:1/-1;text-align:center;padding:60px;color:var(--text-muted)">
+        <div style="font-size:40px;margin-bottom:12px">⏳</div>
+        <div>Memuat destinasi...</div>
+      </div>
+    </div>
+
+    <div style="text-align:center; margin-top:40px" class="reveal">
+      <button onclick="Toast.show('Lihat semua destinasi segera hadir!', 'info')" 
+        style="padding:14px 36px; border-radius:var(--radius-full); border:1.5px solid var(--primary); background:transparent; color:var(--primary); font-size:15px; font-weight:700; cursor:pointer; font-family:var(--font); transition:var(--transition);"
+        onmouseover="this.style.background='var(--primary)';this.style.color='white'"
+        onmouseout="this.style.background='transparent';this.style.color='var(--primary)'">
+        Lihat Semua Destinasi →
+      </button>
+    </div>
+  </div>
+</section>
+
+<!-- ===== PROMO SECTION ===== -->
+<section class="section" id="promoSection" style="padding-top:0">
+  <div class="container">
+    <div class="promo-banner reveal">
+      <div class="promo-content">
+        <div class="promo-label">🔥 PENAWARAN TERBATAS</div>
+        <h2 class="promo-title">Hemat Hingga<br>50% untuk<br>Destinasi Pilihan</h2>
+        <p class="promo-desc">
+          Dapatkan penawaran eksklusif untuk paket wisata dalam dan luar negeri. 
+          Berlaku untuk pemesanan sebelum 31 Desember 2025!
+        </p>
+        <div class="promo-actions">
+          <button class="btn-promo primary" onclick="document.getElementById('destinasiSection').scrollIntoView({behavior:'smooth'})">
+            🎯 Lihat Promo
+          </button>
+          <button class="btn-promo outline" onclick="Modal.open('register')">
+            Daftar & Dapatkan Kode
+          </button>
+        </div>
+      </div>
+      <div class="promo-img">
+        <img src="https://images.unsplash.com/photo-1555400038-63f5ba517a47?w=600&q=80" alt="Promo Bali">
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== PAKET WISATA SECTION ===== -->
+<section class="section" id="paketSection" style="background:var(--bg-card);">
+  <div class="container">
+    <div class="section-header reveal">
+      <div class="section-badge">🎁 Paket Wisata</div>
+      <h2 class="section-title">Paket Wisata Terpopuler</h2>
+      <p class="section-subtitle">Paket all-inclusive terbaik dengan harga kompetitif dan pelayanan premium</p>
+    </div>
+    
+    <div style="display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:24px">
+      <!-- Paket 1 -->
+      <div class="dest-card reveal reveal-delay-1">
+        <div class="dest-card-img">
+          <img src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600" alt="Bromo">
+          <span class="dest-badge">🇮🇩 3D2N</span>
+        </div>
+        <div class="dest-card-body">
+          <div class="dest-category">🎁 Paket Dalam Negeri</div>
+          <div class="dest-name">Bromo Sunrise Adventure</div>
+          <div class="dest-location"><span class="icon">📍</span> Probolinggo, Jawa Timur</div>
+          <div style="font-size:13px;color:var(--text-secondary);margin-bottom:12px;line-height:1.5">
+            ✅ Hotel 2 malam &nbsp;✅ Jeep 4WD<br>
+            ✅ Guide profesional &nbsp;✅ Sarapan
+          </div>
+          <div class="dest-footer">
+            <div class="dest-price">
+              <div class="label">Mulai dari</div>
+              <div class="amount">Rp 1,25Jt</div>
+              <div class="per">/orang</div>
+            </div>
+            <button class="btn-detail" onclick="Toast.show('Hubungi kami untuk pemesanan paket!', 'info')">Pesan →</button>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Paket 2 -->
+      <div class="dest-card reveal reveal-delay-2">
+        <div class="dest-card-img">
+          <img src="https://images.unsplash.com/photo-1514282401047-d79a71a590e8?w=600" alt="Maldives">
+          <span class="dest-badge luar">🌍 5D4N</span>
+        </div>
+        <div class="dest-card-body">
+          <div class="dest-category">💑 Paket Honeymoon</div>
+          <div class="dest-name">Maldives Honeymoon Dream</div>
+          <div class="dest-location"><span class="icon">📍</span> Male, Maladewa</div>
+          <div style="font-size:13px;color:var(--text-secondary);margin-bottom:12px;line-height:1.5">
+            ✅ Overwater bungalow &nbsp;✅ Spa<br>
+            ✅ 3x makan/hari &nbsp;✅ Snorkeling
+          </div>
+          <div class="dest-footer">
+            <div class="dest-price">
+              <div class="label">Mulai dari</div>
+              <div class="amount">Rp 45Jt</div>
+              <div class="per">/pasang</div>
+            </div>
+            <button class="btn-detail" onclick="Toast.show('Hubungi kami untuk pemesanan paket!', 'info')">Pesan →</button>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Paket 3 -->
+      <div class="dest-card reveal reveal-delay-3">
+        <div class="dest-card-img">
+          <img src="https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=600" alt="Tokyo">
+          <span class="dest-badge luar">🌍 7D6N</span>
+        </div>
+        <div class="dest-card-body">
+          <div class="dest-category">🌸 Paket Luar Negeri</div>
+          <div class="dest-name">Japan Explorer Premium</div>
+          <div class="dest-location"><span class="icon">📍</span> Tokyo · Kyoto · Osaka</div>
+          <div style="font-size:13px;color:var(--text-secondary);margin-bottom:12px;line-height:1.5">
+            ✅ Hotel 6 malam &nbsp;✅ JR Pass 7 hari<br>
+            ✅ Guide Indonesia &nbsp;✅ Sarapan
+          </div>
+          <div class="dest-footer">
+            <div class="dest-price">
+              <div class="label">Mulai dari</div>
+              <div class="amount">Rp 18,5Jt</div>
+              <div class="per">/orang</div>
+            </div>
+            <button class="btn-detail" onclick="Toast.show('Hubungi kami untuk pemesanan paket!', 'info')">Pesan →</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== KENAPA KAMI SECTION ===== -->
+<section class="section" id="tentangSection">
+  <div class="container">
+    <div class="section-header reveal">
+      <div class="section-badge">💎 Keunggulan Kami</div>
+      <h2 class="section-title">Mengapa Pilih Wisata Jomokerto?</h2>
+      <p class="section-subtitle">Kami berkomitmen memberikan pengalaman wisata terbaik dengan pelayanan terpercaya</p>
+    </div>
+    
+    <div class="why-grid">
+      <div class="why-card reveal reveal-delay-1">
+        <div class="why-icon">💰</div>
+        <div class="why-title">Harga Terjangkau</div>
+        <div class="why-desc">Dapatkan harga terbaik dengan jaminan tidak ada biaya tersembunyi. Bandingkan dan pilih sesuai budget.</div>
+      </div>
+      <div class="why-card reveal reveal-delay-2">
+        <div class="why-icon">🔒</div>
+        <div class="why-title">Transaksi Aman</div>
+        <div class="why-desc">Sistem pembayaran terenkripsi SSL dengan berbagai metode pembayaran yang aman dan terpercaya.</div>
+      </div>
+      <div class="why-card reveal reveal-delay-3">
+        <div class="why-icon">⭐</div>
+        <div class="why-title">Destinasi Terverifikasi</div>
+        <div class="why-desc">Semua destinasi telah diverifikasi tim kami. Foto dan deskripsi nyata, bukan rekayasa.</div>
+      </div>
+      <div class="why-card reveal reveal-delay-4">
+        <div class="why-icon">📞</div>
+        <div class="why-title">Support 24/7</div>
+        <div class="why-desc">Tim customer service kami siap membantu Anda 24 jam sehari, 7 hari seminggu via chat, telepon, atau email.</div>
+      </div>
+      <div class="why-card reveal reveal-delay-1">
+        <div class="why-icon">🗺️</div>
+        <div class="why-title">500+ Destinasi</div>
+        <div class="why-desc">Pilihan destinasi terlengkap mulai dari wisata lokal Mojokerto hingga destinasi internasional eksotis.</div>
+      </div>
+      <div class="why-card reveal reveal-delay-2">
+        <div class="why-icon">🎯</div>
+        <div class="why-title">Mudah & Cepat</div>
+        <div class="why-desc">Proses pemesanan hanya butuh beberapa menit. Tiket dan konfirmasi langsung dikirim ke email Anda.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== STATISTIK ===== -->
+<section style="background:linear-gradient(135deg,#0d5bdd,#053199); padding:60px 0;">
+  <div class="container">
+    <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:32px; text-align:center;">
+      <div class="reveal">
+        <div style="font-family:var(--font-display);font-size:42px;font-weight:700;color:white" class="count-up" data-target="500">0</div>
+        <div style="font-size:14px;color:rgba(255,255,255,0.8);margin-top:4px">Destinasi Wisata</div>
+      </div>
+      <div class="reveal reveal-delay-1">
+        <div style="font-family:var(--font-display);font-size:42px;font-weight:700;color:white" class="count-up" data-target="50000">0</div>
+        <div style="font-size:14px;color:rgba(255,255,255,0.8);margin-top:4px">Wisatawan Puas</div>
+      </div>
+      <div class="reveal reveal-delay-2">
+        <div style="font-family:var(--font-display);font-size:42px;font-weight:700;color:white" class="count-up" data-target="120">0</div>
+        <div style="font-size:14px;color:rgba(255,255,255,0.8);margin-top:4px">Mitra Agen Wisata</div>
+      </div>
+      <div class="reveal reveal-delay-3">
+        <div style="font-family:var(--font-display);font-size:42px;font-weight:700;color:white" class="count-up" data-target="8">0</div>
+        <div style="font-size:14px;color:rgba(255,255,255,0.8);margin-top:4px">Tahun Berpengalaman</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== GALERI ===== -->
+<section class="section" id="galeriSection">
+  <div class="container">
+    <div class="section-header reveal">
+      <div class="section-badge">📸 Galeri</div>
+      <h2 class="section-title">Momen Indah Wisatawan Kami</h2>
+    </div>
+    <div class="gallery-grid reveal">
+      <div class="gallery-item" style="grid-row:span 2">
+        <img src="https://images.unsplash.com/photo-1555400038-63f5ba517a47?w=600" alt="Bali">
+      </div>
+      <div class="gallery-item">
+        <img src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600" alt="Bromo">
+      </div>
+      <div class="gallery-item">
+        <img src="https://images.unsplash.com/photo-1613395877344-13d4a8e0d49e?w=600" alt="Santorini">
+      </div>
+      <div class="gallery-item">
+        <img src="https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=600" alt="Tokyo">
+      </div>
+      <div class="gallery-item">
+        <img src="https://images.unsplash.com/photo-1514282401047-d79a71a590e8?w=600" alt="Maldives">
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== TESTIMONIALS ===== -->
+<section class="section testimonial-section">
+  <div class="container">
+    <div class="section-header reveal">
+      <div class="section-badge">💬 Testimoni</div>
+      <h2 class="section-title">Kata Mereka Tentang Kami</h2>
+      <p class="section-subtitle">Lebih dari 50.000 wisatawan telah mempercayakan perjalanan mereka kepada kami</p>
+    </div>
+    
+    <div class="testimonial-grid">
+      <div class="testimonial-card reveal reveal-delay-1">
+        <div class="testimonial-stars">★★★★★</div>
+        <p class="testimonial-text">"Pengalaman wisata ke Bromo bersama Wisata Jomokerto luar biasa! Semua diatur dengan rapi, guide ramah, dan sunrise-nya tidak terlupakan. Pasti akan pesan lagi!"</p>
+        <div class="testimonial-author">
+          <div class="author-avatar" style="background:linear-gradient(135deg,#667eea,#764ba2)">BS</div>
+          <div>
+            <div class="author-name">Budi Santoso</div>
+            <div class="author-dest"><span>📍</span> Trip ke Bromo · Agustus 2024</div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="testimonial-card reveal reveal-delay-2">
+        <div class="testimonial-stars">★★★★★</div>
+        <p class="testimonial-text">"Honeymoon ke Maldives kami jadi sempurna berkat Wisata Jomokerto! Paket all-inclusive dengan harga yang sangat worth it. Staff sangat responsif dan membantu."</p>
+        <div class="testimonial-author">
+          <div class="author-avatar" style="background:linear-gradient(135deg,#f093fb,#f5576c)">SR</div>
+          <div>
+            <div class="author-name">Siti & Rizky</div>
+            <div class="author-dest"><span>📍</span> Honeymoon Maldives · Oktober 2024</div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="testimonial-card reveal reveal-delay-3">
+        <div class="testimonial-stars">★★★★⭐</div>
+        <p class="testimonial-text">"Paket Japan Explorer sangat memuaskan! JR Pass sudah termasuk, guide bisa bahasa Indonesia, dan hotel-hotelnya strategis. Rekomendasi banget untuk yang mau ke Jepang!"</p>
+        <div class="testimonial-author">
+          <div class="author-avatar" style="background:linear-gradient(135deg,#43e97b,#38f9d7)">AN</div>
+          <div>
+            <div class="author-name">Andi Nugroho</div>
+            <div class="author-dest"><span>📍</span> Japan Explorer · November 2024</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== NEWSLETTER ===== -->
+<section class="newsletter">
+  <div class="container">
+    <div class="section-badge" style="background:rgba(255,255,255,0.15);color:white;margin-bottom:16px;display:inline-flex">
+      📧 Newsletter
+    </div>
+    <h2 class="newsletter-title">Dapatkan Info Promo Terbaru</h2>
+    <p class="newsletter-sub">Daftarkan email Anda dan dapatkan penawaran eksklusif, tips wisata, dan update destinasi terbaru</p>
+    <form class="newsletter-form" onsubmit="Newsletter.init()">
+      <input type="email" placeholder="Masukkan email Anda..." required>
+      <button type="submit" class="btn-subscribe">Langganan Gratis →</button>
+    </form>
+    <div style="margin-top:16px;font-size:12px;color:rgba(255,255,255,0.5)">
+      🔒 Privasi Anda aman. Kami tidak akan spam!
+    </div>
+  </div>
+</section>
+
+<!-- ===== FOOTER ===== -->
+<footer>
+  <div class="container">
+    <div class="footer-grid">
+      <!-- Brand -->
+      <div>
+        <div class="footer-logo">
+          <div style="width:40px;height:40px;background:var(--primary);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px">✈️</div>
+          <div>
+            <div style="font-size:18px;font-weight:800;color:white;font-family:var(--font-display)">Wisata Jomokerto</div>
+          </div>
+        </div>
+        <p class="footer-desc">Platform wisata terpercaya di Mojokerto. Kami hadir untuk memudahkan perjalanan wisata Anda, dari perencanaan hingga destinasi impian.</p>
+        <div class="footer-social">
+          <a href="#" class="social-btn" title="Instagram">📸</a>
+          <a href="#" class="social-btn" title="Facebook">📘</a>
+          <a href="#" class="social-btn" title="Twitter">🐦</a>
+          <a href="#" class="social-btn" title="YouTube">📺</a>
+          <a href="#" class="social-btn" title="WhatsApp">💬</a>
+        </div>
+      </div>
+      
+      <!-- Destinasi -->
+      <div>
+        <div class="footer-col-title">Destinasi</div>
+        <div class="footer-links">
+          <a href="#" class="footer-link">🇮🇩 Wisata Jawa Timur</a>
+          <a href="#" class="footer-link">🌊 Wisata Bali</a>
+          <a href="#" class="footer-link">🏝️ Wisata Lombok</a>
+          <a href="#" class="footer-link">🦅 Wisata Papua</a>
+          <a href="#" class="footer-link">🌍 Wisata Asia</a>
+          <a href="#" class="footer-link">🗼 Wisata Eropa</a>
+        </div>
+      </div>
+      
+      <!-- Layanan -->
+      <div>
+        <div class="footer-col-title">Layanan</div>
+        <div class="footer-links">
+          <a href="#" class="footer-link">✈️ Tiket Pesawat</a>
+          <a href="#" class="footer-link">🚌 Tiket Bus</a>
+          <a href="#" class="footer-link">🚢 Tiket Kapal</a>
+          <a href="#" class="footer-link">🎁 Paket Wisata</a>
+          <a href="#" class="footer-link">🏨 Hotel & Villa</a>
+          <a href="#" class="footer-link">🚗 Sewa Kendaraan</a>
+        </div>
+      </div>
+      
+      <!-- Perusahaan -->
+      <div>
+        <div class="footer-col-title">Perusahaan</div>
+        <div class="footer-links">
+          <a href="#" class="footer-link">🏢 Tentang Kami</a>
+          <a href="#" class="footer-link">💼 Karir</a>
+          <a href="#" class="footer-link">📰 Press & Media</a>
+          <a href="#" class="footer-link">🤝 Mitra Agen</a>
+          <a href="#" class="footer-link">📞 Hubungi Kami</a>
+          <a href="#" class="footer-link">❓ Bantuan & FAQ</a>
+        </div>
+        
+        <!-- Kontak -->
+        <div style="margin-top:24px">
+          <div class="footer-col-title">Kontak</div>
+          <div class="footer-links">
+            <a href="/cdn-cgi/l/email-protection#432a2d252c03342a30223722292c2e2c282631372c6d202c2e" class="footer-link">📧 <span class="__cf_email__" data-cfemail="a6cfc8c0c9e6d1cfd5c7d2c7ccc9cbc9cdc3d4d2c988c5c9cb">[email&#160;protected]</span></a>
+            <a href="tel:+6231123456789" class="footer-link">📞 (031) 123-456-789</a>
+            <a href="#" class="footer-link">💬 WhatsApp: 0812-3456-7890</a>
+            <div class="footer-link" style="cursor:default">📍 Jl. Majapahit No.1, Mojokerto</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Footer Bottom -->
+  <div style="border-top:1px solid rgba(255,255,255,0.08)">
+    <div class="container">
+      <div class="footer-bottom">
+        <div>© 2025 Wisata Jomokerto. Dibuat dengan ❤️ di Mojokerto.</div>
+        <div style="display:flex;gap:20px;font-size:13px">
+          <a href="#" style="color:rgba(255,255,255,0.5);transition:var(--transition)" onmouseover="this.style.color='white'" onmouseout="this.style.color='rgba(255,255,255,0.5)'">Kebijakan Privasi</a>
+          <a href="#" style="color:rgba(255,255,255,0.5);transition:var(--transition)" onmouseover="this.style.color='white'" onmouseout="this.style.color='rgba(255,255,255,0.5)'">Syarat & Ketentuan</a>
+        </div>
+        <div class="footer-payment">
+          <span style="font-size:12px;color:rgba(255,255,255,0.4);margin-right:4px">Metode Bayar:</span>
+          <span class="payment-icon">BCA</span>
+          <span class="payment-icon">BRI</span>
+          <span class="payment-icon">OVO</span>
+          <span class="payment-icon">GoPay</span>
+          <span class="payment-icon">QRIS</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<!-- ===== MODALS ===== -->
+<!-- Auth Modal -->
+<div class="modal-overlay" id="authModal">
+  <div class="modal" id="modalContent">
+    <!-- Filled by JS -->
+  </div>
+</div>
+
+<!-- Dest Detail Modal -->
+<div class="modal-overlay" id="destModal" style="max-width:100%">
+  <div class="modal" id="destModalContent" style="max-width:560px;padding:40px">
+    <!-- Filled by JS -->
+  </div>
+</div>
+
+<!-- Back to Top -->
+<button class="back-to-top" title="Kembali ke atas">⬆️</button>
+
+<!-- Datalist -->
+<datalist id="kotaList">
+  <option value="Jakarta">
+  <option value="Surabaya">
+  <option value="Bali (Denpasar)">
+  <option value="Yogyakarta">
+  <option value="Medan">
+  <option value="Makassar">
+  <option value="Semarang">
+  <option value="Bandung">
+  <option value="Malang">
+  <option value="Lombok (Mataram)">
+  <option value="Mojokerto">
+</datalist>
+
+<!-- ===== SCRIPTS ===== -->
+<script src="js/main.js"></script>
+
+</body>
+</html>

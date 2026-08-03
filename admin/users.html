@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="light">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Users - Admin Wisata Jomokerto</title>
+  <link rel="stylesheet" href="../css/admin.css">
+</head>
+<body>
+<div id="adminPanel" style="display:none;width:100%">
+  <div class="main" id="mainContent">
+    <div class="page-content">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px">
+        <div>
+          <h1 style="font-size:24px;font-weight:800;color:var(--text-primary)">👥 Manajemen Users</h1>
+          <p style="color:var(--text-muted);font-size:14px">Kelola akun pengguna website</p>
+        </div>
+        <button class="btn btn-primary" onclick="UA.openAdd()">➕ Tambah User</button>
+      </div>
+
+      <div class="stats-grid" style="margin-bottom:24px">
+        <div class="stat-card"><div class="stat-icon" style="background:var(--primary-light)">👥</div><div><div class="stat-num" id="uTotal">-</div><div class="stat-label">Total Users</div></div></div>
+        <div class="stat-card"><div class="stat-icon" style="background:#fef3c7">⭐</div><div><div class="stat-num" id="uAdmin">-</div><div class="stat-label">Admin</div></div></div>
+        <div class="stat-card"><div class="stat-icon" style="background:#dcfce7">👤</div><div><div class="stat-num" id="uMember">-</div><div class="stat-label">Member</div></div></div>
+        <div class="stat-card"><div class="stat-icon" style="background:#fce7f3">🎫</div><div><div class="stat-num" id="uPesan">-</div><div class="stat-label">Punya Booking</div></div></div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">👤 Daftar User <span id="uCount" style="font-size:12px;color:var(--text-muted);font-weight:400"></span></div>
+          <div style="display:flex;gap:8px">
+            <input type="text" id="uSearch" placeholder="🔍 Cari nama/email..." style="padding:8px 12px;border-radius:8px;border:1.5px solid var(--border);background:var(--bg);font-size:13px;font-family:var(--font);color:var(--text-primary);width:200px" oninput="UA.filter()">
+            <select id="uFltrRole" onchange="UA.filter()" style="padding:8px 12px;border-radius:8px;border:1.5px solid var(--border);background:var(--bg);font-size:13px;font-family:var(--font);color:var(--text-primary)">
+              <option value="all">Semua Role</option>
+              <option value="admin">Admin</option>
+              <option value="user">Member</option>
+            </select>
+          </div>
+        </div>
+        <div class="table-wrapper">
+          <table>
+            <thead><tr><th>User</th><th>Email</th><th>Role</th><th>Total Booking</th><th>Total Spend</th><th>Bergabung</th><th>Aksi</th></tr></thead>
+            <tbody id="uTbody"></tbody>
+          </table>
+        </div>
+        <div class="pagination" id="uPgn"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Form -->
+<div class="modal-overlay" id="uModal">
+  <div class="modal" style="max-width:480px">
+    <div class="modal-header">
+      <div class="modal-title" id="uModalTitle">➕ Tambah User</div>
+      <button class="modal-close" onclick="AdminModal.close('uModal')">×</button>
+    </div>
+    <div class="modal-body">
+      <form id="uForm">
+        <div class="form-group">
+          <label class="form-label">Nama Lengkap *</label>
+          <input type="text" name="name" class="form-input" placeholder="Budi Santoso" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Email *</label>
+          <input type="email" name="email" class="form-input" placeholder="budi@email.com" required>
+        </div>
+        <div class="form-group" id="pwField">
+          <label class="form-label">Password *</label>
+          <input type="password" name="password" class="form-input" placeholder="Min. 6 karakter">
+        </div>
+        <div class="form-group">
+          <label class="form-label">No. WhatsApp</label>
+          <input type="text" name="phone" class="form-input" placeholder="08123456789">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Role</label>
+          <select name="role" class="form-input">
+            <option value="user">👤 Member</option>
+            <option value="admin">⭐ Admin</option>
+          </select>
+        </div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="AdminModal.close('uModal')">Batal</button>
+      <button class="btn btn-primary" onclick="UA.save()">💾 Simpan</button>
+    </div>
+  </div>
+</div>
+
+<div id="toastContainer" class="toast-container"></div>
+<script src="admin-shared.js"></script>
+<script src="admin.js"></script>
+<script>
+const UA = {
+  all:[], shown:[], pg:1, perPg:12, editId:null,
+
+  init() {
+    this._seedIfEmpty();
+    this.reload();
+  },
+
+  _seedIfEmpty() {
+    if(WJData.getUsers().length) return;
+    const users=[
+      {id:'u1',name:'Admin Jomokerto',email:'admin@wisatajomokerto.com',password:'admin123',role:'admin',phone:'081234567890',createdAt:new Date().toISOString()},
+    ];
+    WJData.saveUsers(users);
+  },
+
+  reload() {
+    this.all = WJData.getUsers();
+    this.stats(); this.filter();
+  },
+
+  stats() {
+    const d=this.all; const bk=WJData.getBookings();
+    const s=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v;};
+    s('uTotal',d.length);
+    s('uAdmin',d.filter(x=>x.role==='admin').length);
+    s('uMember',d.filter(x=>x.role!=='admin').length);
+    s('uPesan',d.filter(u=>bk.some(b=>String(b.userId)===String(u.id))).length);
+  },
+
+  filter() {
+    const q=(document.getElementById('uSearch')?.value||'').toLowerCase();
+    const r=document.getElementById('uFltrRole')?.value||'all';
+    this.shown=this.all.filter(u=>
+      (!q||(u.name||'').toLowerCase().includes(q)||(u.email||'').toLowerCase().includes(q))&&
+      (r==='all'||u.role===r)
+    );
+    this.pg=1; this.render();
+  },
+
+  render() {
+    const tb=document.getElementById('uTbody'); if(!tb) return;
+    const c=document.getElementById('uCount'); if(c) c.textContent=`(${this.shown.length} user)`;
+    const rows=this.shown.slice((this.pg-1)*this.perPg, this.pg*this.perPg);
+    const curUser=JSON.parse(localStorage.getItem('wj-user')||'{}');
+    const bk=WJData.getBookings();
+
+    if(!rows.length){tb.innerHTML=`<tr><td colspan="7" style="text-align:center;padding:40px;color:var(--text-muted)">Tidak ada user</td></tr>`;return;}
+    tb.innerHTML=rows.map(u=>{
+      const userBk=bk.filter(b=>String(b.userId)===String(u.id));
+      const spend=userBk.filter(b=>b.status!=='cancelled').reduce((s,b)=>s+(b.total||0),0);
+      const isSelf=u.id===curUser.id||u.email===curUser.email;
+      return `<tr>
+        <td>
+          <div style="display:flex;align-items:center;gap:10px">
+            <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--secondary));display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:white;flex-shrink:0">${(u.name||'?').charAt(0).toUpperCase()}</div>
+            <div>
+              <div style="font-weight:600;font-size:13px">${u.name||'-'}${isSelf?'<span style="background:var(--primary-light);color:var(--primary);font-size:10px;padding:1px 6px;border-radius:4px;margin-left:6px;font-weight:700">Anda</span>':''}</div>
+              <div style="font-size:11px;color:var(--text-muted)">${u.phone||''}</div>
+            </div>
+          </div>
+        </td>
+        <td style="font-size:13px">${u.email||'-'}</td>
+        <td>${u.role==='admin'?'<span style="background:#fef3c7;color:#d97706;padding:3px 10px;border-radius:99px;font-size:11px;font-weight:700">⭐ Admin</span>':'<span style="background:var(--primary-light);color:var(--primary);padding:3px 10px;border-radius:99px;font-size:11px;font-weight:700">👤 Member</span>'}</td>
+        <td style="text-align:center;font-weight:700">${userBk.length}</td>
+        <td style="font-weight:700;color:var(--primary)">${fmt.currency(spend)}</td>
+        <td style="font-size:12px;color:var(--text-muted)">${fmt.date(u.createdAt)}</td>
+        <td><div style="display:flex;gap:5px">
+          <button class="btn btn-secondary btn-sm" onclick="UA.openEdit(${JSON.stringify(u.id)})">✏️</button>
+          ${!isSelf?`<button class="btn btn-sm" style="background:#fee2e2;color:#dc2626" onclick="UA.del(${JSON.stringify(u.id)})">🗑️</button>`:''}
+        </div></td>
+      </tr>`;
+    }).join('');
+
+    const pages=Math.ceil(this.shown.length/this.perPg);
+    const pg=document.getElementById('uPgn');
+    if(pg) pg.innerHTML=pages>1?Array.from({length:pages},(_,i)=>
+      `<button onclick="UA.pg=${i+1};UA.render()" class="page-btn ${this.pg===i+1?'active':''}">${i+1}</button>`).join(''):'' ;
+  },
+
+  openAdd() {
+    this.editId=null;
+    document.getElementById('uModalTitle').textContent='➕ Tambah User';
+    document.getElementById('uForm').reset();
+    document.getElementById('pwField').style.display='block';
+    AdminModal.open('uModal');
+  },
+
+  openEdit(id) {
+    const u=this.all.find(x=>x.id===id); if(!u) return;
+    this.editId=id;
+    document.getElementById('uModalTitle').textContent='✏️ Edit User';
+    const f=document.getElementById('uForm');
+    ['name','email','phone','role'].forEach(k=>{ if(f.elements[k]) f.elements[k].value=u[k]||''; });
+    document.getElementById('pwField').style.display='none';
+    AdminModal.open('uModal');
+  },
+
+  save() {
+    const f=document.getElementById('uForm');
+    const data={};
+    new FormData(f).forEach((v,k)=>data[k]=v);
+    if(!data.name||!data.email){AdminToast.show('Nama dan email wajib diisi!','warning');return;}
+
+    const users=WJData.getUsers();
+    if(this.editId) {
+      const i=users.findIndex(x=>x.id===this.editId);
+      if(i!==-1){ users[i]={...users[i],...data}; WJData.saveUsers(users); }
+      AdminToast.show('✅ User diperbarui!','success');
+    } else {
+      if(!data.password||data.password.length<6){AdminToast.show('Password min. 6 karakter!','warning');return;}
+      if(users.find(u=>u.email===data.email)){AdminToast.show('Email sudah terdaftar!','warning');return;}
+      users.push({...data, id:'u'+Date.now(), createdAt:new Date().toISOString()});
+      WJData.saveUsers(users);
+      AdminToast.show('✅ User baru ditambahkan!','success');
+    }
+    AdminModal.close('uModal');
+    this.reload();
+  },
+
+  del(id) {
+    const u=this.all.find(x=>x.id===id);
+    if(!u||!confirm(`Hapus user "${u.name}"?`)) return;
+    WJData.saveUsers(WJData.getUsers().filter(x=>x.id!==id));
+    AdminToast.show('🗑️ User dihapus','info');
+    this.reload();
+  }
+};
+document.addEventListener('DOMContentLoaded',()=>{
+  adminPageInit({page:'users',breadcrumb:'Users',init:()=>UA.init()});
+});
+</script>
+</body></html>

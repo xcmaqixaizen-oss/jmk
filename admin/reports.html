@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="light">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Laporan - Admin Wisata Jomokerto</title>
+  <link rel="stylesheet" href="../css/admin.css">
+</head>
+<body>
+<div id="adminPanel" style="display:none;width:100%">
+  <div class="main" id="mainContent">
+    <div class="page-content">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px">
+        <div>
+          <h1 style="font-size:24px;font-weight:800;color:var(--text-primary)">📈 Laporan & Statistik</h1>
+          <p style="color:var(--text-muted);font-size:14px">Data real-time dari semua aktivitas website</p>
+        </div>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-secondary" onclick="RP.export()">📥 Export JSON</button>
+          <button class="btn btn-primary" onclick="RP.refresh()">🔄 Refresh</button>
+        </div>
+      </div>
+
+      <!-- Stats Grid -->
+      <div class="stats-grid" style="margin-bottom:28px">
+        <div class="stat-card"><div class="stat-icon" style="background:#e8f0fe">🗺️</div><div><div class="stat-num" id="rpDest">-</div><div class="stat-label">Destinasi</div></div></div>
+        <div class="stat-card"><div class="stat-icon" style="background:#dcfce7">👥</div><div><div class="stat-num" id="rpUsers">-</div><div class="stat-label">Users</div></div></div>
+        <div class="stat-card"><div class="stat-icon" style="background:#fef3c7">🎫</div><div><div class="stat-num" id="rpBkTotal">-</div><div class="stat-label">Total Booking</div></div></div>
+        <div class="stat-card"><div class="stat-icon" style="background:#fce7f3">💰</div><div><div class="stat-num" id="rpRevenue">-</div><div class="stat-label">Total Pendapatan</div></div></div>
+        <div class="stat-card"><div class="stat-icon" style="background:#fef3c7">⏳</div><div><div class="stat-num" id="rpPending">-</div><div class="stat-label">Pending</div><div class="stat-change down">Perlu konfirmasi</div></div></div>
+        <div class="stat-card"><div class="stat-icon" style="background:#dbeafe">✅</div><div><div class="stat-num" id="rpConfirmed">-</div><div class="stat-label">Confirmed</div></div></div>
+        <div class="stat-card"><div class="stat-icon" style="background:#dcfce7">🏁</div><div><div class="stat-num" id="rpCompleted">-</div><div class="stat-label">Selesai</div></div></div>
+        <div class="stat-card"><div class="stat-icon" style="background:#fee2e2">❌</div><div><div class="stat-num" id="rpCancelled">-</div><div class="stat-label">Dibatalkan</div></div></div>
+      </div>
+
+      <!-- Charts Row -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:24px">
+        <!-- Monthly Chart -->
+        <div class="card">
+          <div class="card-header"><div class="card-title">📅 Booking per Bulan (Tahun Ini)</div></div>
+          <div style="padding:16px">
+            <div id="monthChart" style="display:flex;align-items:flex-end;gap:4px;height:140px;border-bottom:2px solid var(--border);padding-bottom:4px"></div>
+            <div id="monthLabels" style="display:flex;gap:4px;margin-top:6px"></div>
+          </div>
+        </div>
+        <!-- Status Pie -->
+        <div class="card">
+          <div class="card-header"><div class="card-title">🥧 Booking per Status</div></div>
+          <div style="padding:16px" id="statusChart"></div>
+        </div>
+      </div>
+
+      <!-- Top Destinasi + Aktivitas Terbaru -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+        <div class="card">
+          <div class="card-header"><div class="card-title">🏆 Top 5 Destinasi</div></div>
+          <div style="padding:16px" id="topDestChart"></div>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-title">🕐 Aktivitas Terbaru</div></div>
+          <div style="padding:16px" id="recentActivity"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="toastContainer" class="toast-container"></div>
+<script src="admin-shared.js"></script>
+<script src="admin.js"></script>
+<script>
+const RP = {
+  init() { this.render(); },
+  refresh() { this.render(); AdminToast.show('🔄 Data diperbarui','success'); },
+
+  render() {
+    const bk=WJData.getBookings();
+    const dests=WJData.getDestinations();
+    const users=WJData.getUsers();
+    const s=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v;};
+
+    s('rpDest',dests.length);
+    s('rpUsers',users.length);
+    s('rpBkTotal',bk.length);
+    const rev=bk.filter(b=>b.status!=='cancelled').reduce((sum,b)=>sum+(b.total||0),0);
+    s('rpRevenue',fmt.currency(rev));
+    s('rpPending',bk.filter(b=>b.status==='pending').length);
+    s('rpConfirmed',bk.filter(b=>b.status==='confirmed').length);
+    s('rpCompleted',bk.filter(b=>b.status==='completed').length);
+    s('rpCancelled',bk.filter(b=>b.status==='cancelled').length);
+
+    this.renderMonthChart(bk);
+    this.renderStatusChart(bk);
+    this.renderTopDest(bk);
+    this.renderActivity(bk,users);
+  },
+
+  renderMonthChart(bk) {
+    const months=['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
+    const yr=new Date().getFullYear();
+    const counts=new Array(12).fill(0);
+    bk.forEach(b=>{ const d=new Date(b.createdAt||0); if(d.getFullYear()===yr) counts[d.getMonth()]++; });
+    const max=Math.max(...counts,1);
+    const chart=document.getElementById('monthChart');
+    const labels=document.getElementById('monthLabels');
+    if(chart) chart.innerHTML=counts.map((c,i)=>`
+      <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:2px">
+        <span style="font-size:9px;color:var(--text-muted);font-weight:700">${c||''}</span>
+        <div style="width:100%;background:linear-gradient(to top,var(--primary),rgba(13,91,221,.4));border-radius:3px 3px 0 0;height:${Math.max((c/max)*120,2).toFixed(0)}px"></div>
+      </div>`).join('');
+    if(labels) labels.innerHTML=months.map(m=>`<div style="flex:1;text-align:center;font-size:9px;color:var(--text-muted)">${m}</div>`).join('');
+  },
+
+  renderStatusChart(bk) {
+    const el=document.getElementById('statusChart'); if(!el) return;
+    const statuses=[
+      {k:'pending',label:'Pending',color:'#f59e0b'},
+      {k:'confirmed',label:'Confirmed',color:'#3b82f6'},
+      {k:'completed',label:'Selesai',color:'#10b981'},
+      {k:'cancelled',label:'Dibatalkan',color:'#ef4444'},
+    ];
+    const total=bk.length||1;
+    el.innerHTML=statuses.map(({k,label,color})=>{
+      const cnt=bk.filter(b=>b.status===k).length;
+      const pct=((cnt/total)*100).toFixed(0);
+      return `<div style="margin-bottom:12px">
+        <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+          <span style="font-size:13px;font-weight:600">${label}</span>
+          <span style="font-size:12px;color:${color};font-weight:700">${cnt} (${pct}%)</span>
+        </div>
+        <div style="background:var(--border);border-radius:99px;height:8px;overflow:hidden">
+          <div style="background:${color};height:100%;border-radius:99px;width:${pct}%;transition:width .5s ease"></div>
+        </div>
+      </div>`;
+    }).join('');
+  },
+
+  renderTopDest(bk) {
+    const el=document.getElementById('topDestChart'); if(!el) return;
+    const counts={};
+    bk.forEach(b=>{ const k=b.namaDestinasi||'?'; counts[k]=(counts[k]||0)+1; });
+    const sorted=Object.entries(counts).sort((a,b)=>b[1]-a[1]).slice(0,5);
+    const max=sorted[0]?.[1]||1;
+    if(!sorted.length){ el.innerHTML=`<div style="text-align:center;padding:24px;color:var(--text-muted)">Belum ada booking</div>`; return; }
+    el.innerHTML=sorted.map(([nama,cnt],i)=>`
+      <div style="margin-bottom:12px">
+        <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+          <span style="font-size:13px;font-weight:600">${i+1}. ${nama}</span>
+          <span style="font-size:12px;color:var(--primary);font-weight:700">${cnt} booking</span>
+        </div>
+        <div style="background:var(--border);border-radius:99px;height:6px;overflow:hidden">
+          <div style="background:linear-gradient(90deg,var(--primary),var(--secondary));height:100%;border-radius:99px;width:${(cnt/max*100).toFixed(0)}%"></div>
+        </div>
+      </div>`).join('');
+  },
+
+  renderActivity(bk,users) {
+    const el=document.getElementById('recentActivity'); if(!el) return;
+    const events=[
+      ...bk.slice(-8).reverse().map(b=>({time:b.createdAt, icon:'🎫', text:`Booking ${b.id} — ${b.namaDestinasi||'-'} (${b.contactName||'?'})`, color:'var(--primary)'})),
+      ...users.slice(-5).reverse().map(u=>({time:u.createdAt, icon:'👤', text:`User baru: ${u.name}`, color:'#10b981'})),
+    ].sort((a,b)=>new Date(b.time||0)-new Date(a.time||0)).slice(0,10);
+    if(!events.length){ el.innerHTML=`<div style="text-align:center;padding:24px;color:var(--text-muted)">Belum ada aktivitas</div>`; return; }
+    el.innerHTML=events.map(e=>`
+      <div style="display:flex;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);align-items:flex-start">
+        <span style="font-size:18px;margin-top:1px">${e.icon}</span>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:12px;font-weight:600;color:var(--text-primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${e.text}</div>
+          <div style="font-size:11px;color:var(--text-muted);margin-top:1px">${fmt.datetime(e.time)}</div>
+        </div>
+      </div>`).join('');
+  },
+
+  export() {
+    const data={
+      exportedAt:new Date().toISOString(),
+      destinations:WJData.getDestinations(),
+      transport:WJData.getTransport(),
+      packages:WJData.getPackages(),
+      bookings:WJData.getBookings(),
+      users:WJData.getUsers().map(u=>({...u,password:undefined})),
+      gallery:WJData.getGallery(),
+    };
+    const a=document.createElement('a');
+    a.href='data:application/json;charset=utf-8,'+encodeURIComponent(JSON.stringify(data,null,2));
+    a.download=`wj-data-${new Date().toISOString().slice(0,10)}.json`;
+    a.click();
+    AdminToast.show('📥 Data diekspor!','success');
+  }
+};
+document.addEventListener('DOMContentLoaded',()=>{
+  adminPageInit({page:'reports',breadcrumb:'Laporan',init:()=>RP.init()});
+});
+</script>
+</body></html>
